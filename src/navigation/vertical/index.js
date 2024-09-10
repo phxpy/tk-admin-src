@@ -34,4 +34,9 @@ export default [
     to: { name: 'reg' },
     icon: { icon: 'tabler-smart-home' },
   },
+  {
+    title: 'Login',
+    to: { name: 'login' },
+    icon: { icon: 'tabler-smart-home' },
+  },
 ]

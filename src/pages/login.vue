@@ -1,28 +1,81 @@
+<!-- ❗Errors in the form are set on line 60 -->
 <script setup>
-import AuthProvider from '@/views/pages/authentication/AuthProvider.vue'
 import { VNodeRenderer } from '@layouts/components/VNodeRenderer'
 import { themeConfig } from '@themeConfig'
+import { VForm } from 'vuetify/components/VForm'
 
-const form = ref({
-  email: '',
-  password: '',
-  remember: false,
+definePage({
+  meta: {
+    unauthenticatedOnly: true,
+  },
 })
 
 const isPasswordVisible = ref(false)
+const route = useRoute()
+const router = useRouter()
+
+const ability = useAbility()
+
+const errors = ref({
+  username: undefined,
+  password: undefined,
+})
+
+const refVForm = ref()
+
+const credentials = ref({
+  username: '',
+  password: '',
+})
+
+const login = async () => {
+  try {
+    const res = await $api('https://tg-adsnet-api-proxy.goourl.ru/api/auth/token/', {
+      method: 'POST',
+      body: {
+        username: credentials.value.username,
+        password: credentials.value.password,
+      },
+      onResponseError({ response }) {
+        errors.value = response._data.errors
+      },
+    })
+
+    const { access, refresh } = res
+
+    const abilityRules = access ? [{ "action": "manage", "subject": "all" }] : ""
+
+    useCookie('userAbilityRules').value = abilityRules
+    ability.update(abilityRules)
+    useCookie('accessToken').value = access
+    useCookie('refreshToken').value = refresh
+    await nextTick(() => {
+      router.replace(route.query.to ? String(route.query.to) : '/')
+    })
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+const onSubmit = () => {
+  refVForm.value?.validate().then(({ valid: isValid }) => {
+    if (isValid)
+      login()
+  })
+}
 </script>
 
 <template>
-  <a href="javascript:void(0)">
+  <RouterLink to="/">
     <div class="auth-logo d-flex align-center gap-x-3">
       <VNodeRenderer :nodes="themeConfig.app.logo" />
       <h1 class="auth-title">
         {{ themeConfig.app.title }}
       </h1>
     </div>
-  </a>
+  </RouterLink>
 
-  <VRow class="auth-wrapper d-flex align-center justify-center pa-4 h-100">
+  <VRow class="auth-wrapper">
     <VCol
       cols="12"
       md="12"
@@ -34,89 +87,49 @@ const isPasswordVisible = ref(false)
       >
         <VCardText>
           <h4 class="text-h4 mb-1">
-            Welcome to <span class="text-capitalize">{{ themeConfig.app.title }}</span>! 👋🏻
+            Welcome to <span class="text-capitalize"> {{ themeConfig.app.title }} </span>! 👋🏻
           </h4>
           <p class="mb-0">
             Please sign-in to your account and start the adventure
           </p>
         </VCardText>
         <VCardText>
-          <VForm @submit.prevent="() => {}">
+          <VForm
+            ref="refVForm"
+            @submit.prevent="onSubmit"
+          >
             <VRow>
-              <!-- email -->
+              <!-- username -->
               <VCol cols="12">
                 <AppTextField
-                  v-model="form.email"
+                  v-model="credentials.username"
+                  label="Username"
+                  type="text"
                   autofocus
-                  label="Email or Username"
-                  type="email"
-                  placeholder="johndoe@email.com"
+                  :rules="[requiredValidator]"
+                  :error-messages="errors.username"
                 />
               </VCol>
 
               <!-- password -->
               <VCol cols="12">
                 <AppTextField
-                  v-model="form.password"
+                  v-model="credentials.password"
                   label="Password"
-                  placeholder="············"
+                  :rules="[requiredValidator]"
                   :type="isPasswordVisible ? 'text' : 'password'"
+                  :error-messages="errors.password"
                   :append-inner-icon="isPasswordVisible ? 'tabler-eye-off' : 'tabler-eye'"
                   @click:append-inner="isPasswordVisible = !isPasswordVisible"
                 />
 
-                <div class="d-flex align-center flex-wrap justify-space-between my-6">
-                  <VCheckbox
-                    v-model="form.remember"
-                    label="Remember me"
-                  />
-                  <a
-                    class="text-primary"
-                    href="javascript:void(0)"
-                  >
-                    Forgot Password?
-                  </a>
-                </div>
-
                 <VBtn
                   block
                   type="submit"
+                  class="mt-6"
                 >
                   Login
                 </VBtn>
-              </VCol>
-
-              <!-- create account -->
-              <VCol
-                cols="12"
-                class="text-body-1 text-center"
-              >
-                <span class="d-inline-block">
-                  New on our platform?
-                </span>
-                <a
-                  class="text-primary ms-1 d-inline-block text-body-1"
-                  href="javascript:void(0)"
-                >
-                  Create an account
-                </a>
-              </VCol>
-
-              <VCol
-                cols="12"
-                class="d-flex align-center"
-              >
-                <VDivider />
-                <span class="mx-4">or</span>
-                <VDivider />
-              </VCol>
-
-              <!-- auth providers -->
-              <VCol
-                cols="12"
-                class="text-center"
-              >
-                <AuthProvider />
               </VCol>
             </VRow>
           </VForm>

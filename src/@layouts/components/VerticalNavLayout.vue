@@ -210,5 +210,9 @@ const verticalNavAttrs = computed(() => {
       }
     }
   }
+
+  .zeroPadding {
+    padding-inline-start: 0 !important;
+  }
 }
 </style>

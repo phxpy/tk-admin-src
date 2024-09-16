@@ -1,6 +1,34 @@
 <script setup>
 import DemoSelectBasic from "@/components/DemoSelectBasic.vue"
 import DemoSelectChips from "@/components/DemoSelectChips.vue"
+
+const updateCampaign = async () => {
+  try {
+    const res = await $api('https://tg-adsnet-api-proxy.goourl.ru/api/campaign/142/edit/', {
+      method: 'PATCH',
+      body: {
+        "title": `test_create_camp_${new Date().getDate()}`,
+        "description": "test",
+        "target_url": "https://web.telegram.org/k/",
+        "category": 4,
+        "cpc": 1,
+        "scf": 1,
+        "daily_views_limit": 10000,
+        "total_budget": "100",
+        "telegram_premium": "true",
+        "motivated_traffic": "true",
+        "task_type": "2",
+        "platform": ["all"],
+        "country": ["France"],
+        "language": ["FR", "EN"],
+      },
+    })
+
+    console.log(res)
+  } catch (err) {
+    console.error(err)
+  }
+}
 </script>
 
 <template>
@@ -212,8 +240,9 @@ import DemoSelectChips from "@/components/DemoSelectChips.vue"
           <VBtn
             color="primary"
             block
+            @click="updateCampaign"
           >
-            Create
+            Update
           </VBtn>
         </VCardText>
       </VCard>

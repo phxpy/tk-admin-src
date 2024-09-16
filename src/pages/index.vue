@@ -19,7 +19,7 @@ const headers = [
   },
   {
     title: 'budget',
-    key: 'payment',
+    key: 'total_budget',
     sortable: false,
   },
   {
@@ -891,6 +891,16 @@ const ordersData = [
   },
 ]
 
+const campaignData = ref([])
+
+onMounted(async () => {
+  const data = await $api('https://tg-adsnet-api-proxy.goourl.ru/api/campaign/', {
+    method: 'GET',
+  })
+  
+  campaignData.value = data.results
+})
+
 const page = ref(1)
 const itemsPerPage = ref(10)
 const totalOrder = ref(ordersData.length)
@@ -899,6 +909,39 @@ const orders = computed(() => {
   return ordersData.slice((page.value - 1) * itemsPerPage.value, page.value * itemsPerPage.value)
 })
 </script>
+
+<!--
+  {
+  "id": 134,
+  "platform": [
+  "all"
+  ],
+  "country": [
+  "France"
+  ],
+  "language": [
+  "FR",
+  "EN"
+  ],
+  "status": "Draft",
+  "reject_reason": null,
+  "stats": {},
+  "owner_id": 10,
+  "title": "test_create_camp_11_09_2024_18_17_30",
+  "description": "test",
+  "target_url": "https://web.telegram.org/k/",
+  "category": 4,
+  "cpc": 1,
+  "scf": 1,
+  "daily_views_limit": 10000,
+  "total_budget": 100,
+  "ends_at": null,
+  "telegram_premium": true,
+  "motivated_traffic": true,
+  "task_type": 2,
+  "extra": {}
+  } 
+-->
 
 <template>
   <VCard>
@@ -934,7 +977,7 @@ const orders = computed(() => {
       v-model:items-per-page="itemsPerPage"
       v-model:page="page"
       :headers="headers"
-      :items="orders"
+      :items="campaignData"
       :items-length="totalOrder"
       class="text-no-wrap"
     >
@@ -950,27 +993,27 @@ const orders = computed(() => {
 
       <!-- Name  -->
       <template #item.name="{ item }">
-        {{ item.customer }}
+        {{ item.title }}
       </template>
 
       <!-- Budget -->
       <template #item.budget="{ item }">
-        {{ item.methodNumber }}
+        {{ item.total_budget }}
       </template>
 
       <!-- Date -->
       <template #item.date="{ item }">
-        {{ item.date }}
+        {{ item.total_budget }}
       </template>
 
       <!-- Total spend -->
       <template #item.spend="{ item }">
-        {{ item.spent }}
+        {{ item }}
       </template>
 
       <!-- Cost -->
       <template #item.cost="{ item }">
-        {{ item.spent }}
+        {{ item.total_budget }}
       </template>
 
       <!-- Actions -->

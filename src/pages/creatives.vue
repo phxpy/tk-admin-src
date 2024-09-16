@@ -886,6 +886,16 @@ const ordersData = [
   },
 ]
 
+const creativesData = ref([])
+
+onMounted(async () => {
+  const data = await $api('https://tg-adsnet-api-proxy.goourl.ru/api/campaign/139/creative/', {
+    method: 'GET',
+  })
+  
+  creativesData.value = data.results
+})
+
 const page = ref(1)
 const itemsPerPage = ref(10)
 const totalOrder = ref(ordersData.length)

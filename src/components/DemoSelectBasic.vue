@@ -1,14 +1,8 @@
 <script setup>
 defineProps({
   label: String,
+  items: Array,
 })
-
-const items = [
-  'Foo',
-  'Bar',
-  'Fizz',
-  'Buzz',
-]
 </script>
 
 <template>

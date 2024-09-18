@@ -1,3 +1,42 @@
+<script setup>
+let title = "111"
+let description = "333"
+
+const creativeData = {}
+
+const setFile = async payload => {
+  const encodedFile = await encodeImageFileAsURL(payload)
+
+  // creativeData['icon'] = encodedFile
+}
+
+function encodeImageFileAsURL(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+
+    reader.onloadend = function() {
+      resolve(reader.result)
+    }
+    reader.onerror = function() {
+      reject(reader.error)
+    }
+    reader.readAsDataURL(file)
+  })
+}
+
+const addCreative = async () => {
+  creativeData['title'] = title
+  creativeData['description'] = description
+
+  console.log(creativeData)
+
+  await $api("https://tg-adsnet-api-proxy.goourl.ru/api/campaign/140/creative/add/", {
+    method: "POST",
+    body: JSON.stringify(creativeData),
+  })
+}
+</script>
+
 <template>
   <VRow>
     <VCol
@@ -12,7 +51,7 @@
         </VCardItem>
 
         <VCardText>
-          <DropZone />
+          <DropZone @drop-file="setFile" />
         </VCardText>
       </VCard>
     </VCol>
@@ -24,6 +63,7 @@
         <VRow>
           <VCardText>
             <AppTextField
+              v-model="title"
               label="Headline"
               placeholder="Headline"
             />
@@ -35,6 +75,7 @@
         <VRow>
           <VCardText>
             <AppTextField
+              v-model="description"
               label="Subtitle"
               placeholder="Subtitle"
             />
@@ -51,6 +92,7 @@
           <VBtn
             color="primary"
             block
+            @click="addCreative"
           >
             Add creative
           </VBtn>

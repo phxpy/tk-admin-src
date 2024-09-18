@@ -5,6 +5,8 @@ import {
   useObjectUrl,
 } from '@vueuse/core'
 
+const emit = defineEmits(['dropFile'])
+
 const dropZoneRef = ref()
 const fileData = ref([])
 const { open, onChange } = useFileDialog({ accept: 'image/*' })
@@ -32,6 +34,10 @@ onChange(selectedFiles => {
       url: useObjectUrl(file).value ?? '',
     })
   }
+
+  emit('dropFile', fileData.value[0].file)
+
+  // console.log(fileData.value[0].file)
 })
 useDropZone(dropZoneRef, onDrop)
 </script>
@@ -78,7 +84,7 @@ useDropZone(dropZoneRef, onDrop)
             >
               <VCol
                 cols="12"
-                sm="4"
+                sm="12"
               >
                 <VCard :ripple="false">
                   <VCardText

@@ -1,6 +1,8 @@
 <script setup>
 import { computed, ref } from 'vue'
 
+const route = useRoute()
+
 const headers = [
   {
     title: 'CREATIVE ID',
@@ -42,7 +44,7 @@ const headers = [
 const creativesData = ref([])
 
 onMounted(async () => {
-  const data = await $api('https://tg-adsnet-api-proxy.goourl.ru/api/campaign/140/creative/', {
+  const data = await $api(`https://tg-adsnet-api-proxy.goourl.ru/api/campaign/${route.query.id}/creative/`, {
     method: 'GET',
   })
   

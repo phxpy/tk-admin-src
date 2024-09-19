@@ -1,25 +1,20 @@
 <script setup>
-const items = [
-  'foo',
-  'bar',
-  'fizz',
-  'buzz',
-]
+import { defineProps } from 'vue'
 
-const selected = ref([
-  'foo',
-  'bar',
-  'fizz',
-  'buzz',
-])
+const props = defineProps({
+  items: Array,
+  label: String,
+})
+
+const selected = ref([])
 </script>
 
 <template>
   <AppSelect
     v-model="selected"
     :items="items"
-    placeholder="Select Item"
-    label="Chips"
+    placeholder="Select Item(s)"
+    :label="label"
     chips
     multiple
     closable-chips

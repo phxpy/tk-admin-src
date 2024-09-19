@@ -1,4 +1,5 @@
 <script setup>
+import { countriesSet, languagesSet, platformsSet } from '@/assets/fixtures.js'
 import DemoSelectBasic from "@/components/DemoSelectBasic.vue"
 import DemoSelectChips from "@/components/DemoSelectChips.vue"
 
@@ -56,7 +57,7 @@ const createCampaing = async () => {
               <!-- 👉 Chips -->
               <VCard title="GEO">
                 <VCardText>
-                  <DemoSelectChips />
+                  <DemoSelectChips :items="Object.keys(countriesSet)" />
                 </VCardText>
               </VCard>
             </VCol>
@@ -67,7 +68,7 @@ const createCampaing = async () => {
               <!-- 👉 Chips -->
               <VCard title="Language">
                 <VCardText>
-                  <DemoSelectChips />
+                  <DemoSelectChips :items="Object.keys(languagesSet)" />
                 </VCardText>
               </VCard>
             </VCol>
@@ -93,7 +94,7 @@ const createCampaing = async () => {
               <!-- 👉 Chips -->
               <VCard title="OS">
                 <VCardText>
-                  <DemoSelectChips />
+                  <DemoSelectChips :items="Object.keys(platformsSet)" />
                 </VCardText>
               </VCard>
             </VCol>
@@ -108,7 +109,7 @@ const createCampaing = async () => {
               <!-- 👉 Chips -->
               <VCard title="Premium">
                 <VCardText>
-                  <DemoSelectChips />
+                  <DemoSelectBasic :items="['Yes', 'No']" />
                 </VCardText>
               </VCard>
             </VCol>
@@ -154,37 +155,7 @@ const createCampaing = async () => {
             >
               <VCard>
                 <VCardText>
-                  12312312312312
-                </VCardText>
-              </VCard>
-            </VCol>
-            <VCol
-              cols="3"
-              md="3"
-            >
-              <VCard>
-                <VCardText>
-                  <VBtn
-                    color="primary"
-                    block
-                  >
-                    Get test
-                  </VBtn>
-                </VCardText>
-              </VCard>
-            </VCol>
-            <VCol
-              cols="3"
-              md="3"
-            >
-              <VCard>
-                <VCardText>
-                  <VBtn
-                    color="success"
-                    block
-                  >
-                    Test status bar
-                  </VBtn>
+                  Information about system macros
                 </VCardText>
               </VCard>
             </VCol>

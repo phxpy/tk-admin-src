@@ -1,6 +1,9 @@
 <script setup>
 import { computed, ref } from 'vue'
 
+const router = useRouter()
+const campaignData = ref([])
+
 const headers = [
   {
     title: 'CAMPAING ID',
@@ -44,8 +47,6 @@ const headers = [
   },
 ]
 
-const campaignData = ref([])
-
 onMounted(async () => {
   const data = await $api('https://tg-adsnet-api-proxy.goourl.ru/api/campaign/', {
     method: 'GET',
@@ -61,40 +62,11 @@ const campaigns = computed(() => {
 const page = ref(1)
 const itemsPerPage = ref(10)
 const totalOrder = computed(() => campaignData.value.length)
-</script>
 
-<!--
-  {
-  "id": 134,
-  "platform": [
-  "all"
-  ],
-  "country": [
-  "France"
-  ],
-  "language": [
-  "FR",
-  "EN"
-  ],
-  "status": "Draft",
-  "reject_reason": null,
-  "stats": {},
-  "owner_id": 10,
-  "title": "test_create_camp_11_09_2024_18_17_30",
-  "description": "test",
-  "target_url": "https://web.telegram.org/k/",
-  "category": 4,
-  "cpc": 1,
-  "scf": 1,
-  "daily_views_limit": 10000,
-  "total_budget": 100,
-  "ends_at": null,
-  "telegram_premium": true,
-  "motivated_traffic": true,
-  "task_type": 2,
-  "extra": {}
-  } 
--->
+const seeCampaignCreatives = id => {
+  router.push({ path: '/creatives', query: { id: id } })
+}
+</script>
 
 <template>
   <VCard>
@@ -170,7 +142,7 @@ const totalOrder = computed(() => campaignData.value.length)
       </template>
 
       <!-- Actions -->
-      <template #item.actions="">
+      <template #item.actions="{ item }">
         <IconBtn>
           <VIcon icon="tabler-play" />
         </IconBtn>
@@ -179,7 +151,7 @@ const totalOrder = computed(() => campaignData.value.length)
           <VIcon icon="tabler-pause" />
         </IconBtn>
 
-        <IconBtn>
+        <IconBtn @click="seeCampaignCreatives(item.id)">
           <VIcon icon="tabler-eye" />
         </IconBtn>
 

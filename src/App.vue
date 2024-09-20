@@ -1,5 +1,5 @@
 <script setup>
-import { useTheme } from 'vuetify'
+import { useCampaignConstants } from '@/assets/campaignConstants'
 import ScrollToTop from '@core/components/ScrollToTop.vue'
 import initCore from '@core/initCore'
 import {
@@ -7,6 +7,8 @@ import {
   useConfigStore,
 } from '@core/stores/config'
 import { hexToRgb } from '@core/utils/colorConverter'
+import { onBeforeMount } from 'vue'
+import { useTheme } from 'vuetify'
 
 const { global } = useTheme()
 
@@ -15,6 +17,11 @@ initCore()
 initConfigStore()
 
 const configStore = useConfigStore()
+const campaignConstants = useCampaignConstants()
+
+onBeforeMount(() => {
+  campaignConstants.initializeSets()
+})
 </script>
 
 <template>

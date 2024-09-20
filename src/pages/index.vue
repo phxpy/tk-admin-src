@@ -66,6 +66,10 @@ const totalOrder = computed(() => campaignData.value.length)
 const seeCampaignCreatives = id => {
   router.push({ path: '/creatives', query: { id: id } })
 }
+
+const editCampaign = id => {
+  router.push({ path: '/editcampaign', query: { id: id } })
+}
 </script>
 
 <template>
@@ -155,7 +159,7 @@ const seeCampaignCreatives = id => {
           <VIcon icon="tabler-eye" />
         </IconBtn>
 
-        <IconBtn>
+        <IconBtn @click="editCampaign(item.id)">
           <VIcon icon="tabler-edit" />
         </IconBtn>
         

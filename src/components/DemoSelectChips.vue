@@ -1,12 +1,23 @@
 <script setup>
-import { defineProps } from 'vue'
+import { defineProps, onMounted } from 'vue'
 
 const props = defineProps({
-  items: Array,
+  items: {
+    type: Array,
+    default: () => [],
+  },
   label: String,
+  selectedItems: {
+    type: Array,
+    default: () => [],
+  },
 })
 
-const selected = ref([])
+const selected = ref([...props.selectedItems])
+
+onMounted(() => {
+  selected.value = [...props.selectedItems]
+})
 </script>
 
 <template>

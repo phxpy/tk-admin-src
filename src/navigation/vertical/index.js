@@ -15,13 +15,13 @@ export default [
     icon: { icon: 'tabler-smart-home' },
   },
   {
-    title: 'New Campaing (Temp)',
-    to: { name: 'newcampaing' },
+    title: 'New Campaign (Temp)',
+    to: { name: 'newcampaign' },
     icon: { icon: 'tabler-smart-home' },
   },
   {
-    title: 'Update Campaing (Temp)',
-    to: { name: 'campaing-update' },
+    title: 'Edit Campaign (Temp)',
+    to: { name: 'editcampaign' },
     icon: { icon: 'tabler-smart-home' },
   },
   {

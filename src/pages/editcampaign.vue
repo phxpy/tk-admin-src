@@ -1,30 +1,80 @@
 <script setup>
+import { useCampaignConstants } from '@/assets/campaignConstants'
 import DemoSelectBasic from "@/components/DemoSelectBasic.vue"
 import DemoSelectChips from "@/components/DemoSelectChips.vue"
+import { onBeforeMount, ref } from "vue"
+import { useRoute } from 'vue-router'
 
-const updateCampaign = async () => {
+const campaignData = ref({})
+const isPremium = ref("")
+const itemTitle = ref("")
+const selectedLangs = ref([])
+const selectedCountries = ref([])
+const selectedPlatforms = ref([])
+
+const route = useRoute()
+const campaignConstants = useCampaignConstants()
+
+onBeforeMount(async () => {
+  const res = await $api(`https://tg-adsnet-api-proxy.goourl.ru/api/campaign/${route.query.id}`, {
+    method: 'GET',
+  })
+
+  campaignData.value = res
+
+  res.telegram_premium ? isPremium.value = "Yes" : isPremium.value = "No"
+  itemTitle.value = res.title
+
+  res.language.forEach(lang => {
+    selectedLangs.value.push(campaignConstants.languages[lang])
+  })
+
+  res.country.forEach(country => {
+    selectedCountries.value.push(campaignConstants.countries[country])
+  })
+
+  res.platform.forEach(platform => {
+    selectedPlatforms.value.push(campaignConstants.platforms[platform])
+  })
+})
+
+const updateCampaign = async () => {  
+  const patchPlatforms = []
+  for (let key in campaignConstants.platforms) {
+    if (selectedPlatforms.value.includes(campaignConstants.platforms[key])) {
+      patchPlatforms.push(key)
+    }
+  }
+
+  const patchCountries = []
+  for (let key in campaignConstants.countries) {
+    if (selectedCountries.value.includes(campaignConstants.countries[key])) {
+      patchCountries.push(key)
+    }
+  }
+
+  const patchLangs = []
+  for (let key in campaignConstants.languages) {
+    if (selectedLangs.value.includes(campaignConstants.languages[key])) {
+      patchLangs.push(key)
+    }
+  }
+  console.log(patchCountries)
+  console.log(patchLangs)
+  console.log(patchPlatforms)
+
+
   try {
-    const res = await $api('https://tg-adsnet-api-proxy.goourl.ru/api/campaign/142/edit/', {
+    const res = await $api(`https://tg-adsnet-api-proxy.goourl.ru/api/campaign/${route.query.id}/edit/`, {
       method: 'PATCH',
       body: {
-        "title": `test_create_camp_${new Date().getDate()}`,
-        "description": "test",
-        "target_url": "https://web.telegram.org/k/",
-        "category": 4,
-        "cpc": 1,
-        "scf": 1,
-        "daily_views_limit": 10000,
-        "total_budget": "100",
-        "telegram_premium": "true",
-        "motivated_traffic": "true",
-        "task_type": "2",
-        "platform": ["all"],
-        "country": ["France"],
-        "language": ["FR", "EN"],
+        "title": itemTitle.value,
+        "telegram_premium": isPremium.value,
+        "platform": patchPlatforms,
+        "country": patchCountries,
+        "language": patchLangs,
       },
     })
-
-    console.log(res)
   } catch (err) {
     console.error(err)
   }
@@ -43,6 +93,7 @@ const updateCampaign = async () => {
       >
         <VCardText>
           <AppTextField
+            v-model="itemTitle"
             label="Name"
             placeholder="Campaing name"
           />
@@ -56,7 +107,11 @@ const updateCampaign = async () => {
               <!-- 👉 Chips -->
               <VCard title="GEO">
                 <VCardText>
-                  <DemoSelectChips />
+                  <DemoSelectChips
+                    v-model="selectedCountries"
+                    :items="Object.values(campaignConstants.countries)"
+                    :selected-items="selectedCountries"
+                  />
                 </VCardText>
               </VCard>
             </VCol>
@@ -67,7 +122,11 @@ const updateCampaign = async () => {
               <!-- 👉 Chips -->
               <VCard title="Language">
                 <VCardText>
-                  <DemoSelectChips />
+                  <DemoSelectChips
+                    v-model="selectedLangs"
+                    :items="Object.values(campaignConstants.languages)"
+                    :selected-items="selectedLangs"
+                  />
                 </VCardText>
               </VCard>
             </VCol>
@@ -93,7 +152,11 @@ const updateCampaign = async () => {
               <!-- 👉 Chips -->
               <VCard title="OS">
                 <VCardText>
-                  <DemoSelectChips />
+                  <DemoSelectChips
+                    v-model="selectedPlatforms"
+                    :items="Object.values(campaignConstants.platforms)"
+                    :selected-items="selectedPlatforms"
+                  />
                 </VCardText>
               </VCard>
             </VCol>
@@ -108,7 +171,10 @@ const updateCampaign = async () => {
               <!-- 👉 Chips -->
               <VCard title="Premium">
                 <VCardText>
-                  <DemoSelectChips />
+                  <DemoSelectBasic
+                    v-model="isPremium"
+                    :items="['Yes', 'No']"
+                  />
                 </VCardText>
               </VCard>
             </VCol>
@@ -155,36 +221,6 @@ const updateCampaign = async () => {
               <VCard>
                 <VCardText>
                   12312312312312
-                </VCardText>
-              </VCard>
-            </VCol>
-            <VCol
-              cols="3"
-              md="3"
-            >
-              <VCard>
-                <VCardText>
-                  <VBtn
-                    color="primary"
-                    block
-                  >
-                    Get test
-                  </VBtn>
-                </VCardText>
-              </VCard>
-            </VCol>
-            <VCol
-              cols="3"
-              md="3"
-            >
-              <VCard>
-                <VCardText>
-                  <VBtn
-                    color="success"
-                    block
-                  >
-                    Test status bar
-                  </VBtn>
                 </VCardText>
               </VCard>
             </VCol>

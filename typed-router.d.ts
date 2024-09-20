@@ -21,10 +21,10 @@ declare module 'vue-router/auto-routes' {
     'root': RouteRecordInfo<'root', '/', Record<never, never>, Record<never, never>>,
     '$error': RouteRecordInfo<'$error', '/:error(.*)', { error: ParamValue<true> }, { error: ParamValue<false> }>,
     'addcreative': RouteRecordInfo<'addcreative', '/addcreative', Record<never, never>, Record<never, never>>,
-    'campaing-update': RouteRecordInfo<'campaing-update', '/campaing-update', Record<never, never>, Record<never, never>>,
     'creatives': RouteRecordInfo<'creatives', '/creatives', Record<never, never>, Record<never, never>>,
+    'editcampaign': RouteRecordInfo<'editcampaign', '/editcampaign', Record<never, never>, Record<never, never>>,
     'login': RouteRecordInfo<'login', '/login', Record<never, never>, Record<never, never>>,
-    'newcampaing': RouteRecordInfo<'newcampaing', '/newcampaing', Record<never, never>, Record<never, never>>,
+    'newcampaign': RouteRecordInfo<'newcampaign', '/newcampaign', Record<never, never>, Record<never, never>>,
     'reg': RouteRecordInfo<'reg', '/reg', Record<never, never>, Record<never, never>>,
     'stats': RouteRecordInfo<'stats', '/stats', Record<never, never>, Record<never, never>>,
   }

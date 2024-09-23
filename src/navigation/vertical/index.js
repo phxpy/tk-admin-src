@@ -15,16 +15,6 @@ export default [
     icon: { icon: 'tabler-smart-home' },
   },
   {
-    title: 'New Campaign (Temp)',
-    to: { name: 'newcampaign' },
-    icon: { icon: 'tabler-smart-home' },
-  },
-  {
-    title: 'Edit Campaign (Temp)',
-    to: { name: 'editcampaign' },
-    icon: { icon: 'tabler-smart-home' },
-  },
-  {
     title: 'Add Creative (Temp)',
     to: { name: 'addcreative' },
     icon: { icon: 'tabler-smart-home' },

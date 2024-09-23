@@ -1,7 +1,6 @@
 <script setup>
 import { computed, ref } from 'vue'
 
-const router = useRouter()
 const campaignData = ref([])
 
 const headers = [
@@ -62,14 +61,6 @@ const campaigns = computed(() => {
 const page = ref(1)
 const itemsPerPage = ref(10)
 const totalOrder = computed(() => campaignData.value.length)
-
-const seeCampaignCreatives = id => {
-  router.push({ path: '/creatives', query: { id: id } })
-}
-
-const editCampaign = id => {
-  router.push({ path: '/editcampaign', query: { id: id } })
-}
 </script>
 
 <template>
@@ -94,7 +85,7 @@ const editCampaign = id => {
         <!-- 👉 New campaing -->
         <VBtn
           prepend-icon="tabler-plus"
-          :to="{ name: 'root' }"
+          :to="{ name: 'newcampaign' }"
         >
           New campaing
         </VBtn>
@@ -155,11 +146,11 @@ const editCampaign = id => {
           <VIcon icon="tabler-pause" />
         </IconBtn>
 
-        <IconBtn @click="seeCampaignCreatives(item.id)">
+        <IconBtn :to="{ name: 'creatives', query: { id: item.id } }">
           <VIcon icon="tabler-eye" />
         </IconBtn>
 
-        <IconBtn @click="editCampaign(item.id)">
+        <IconBtn :to="{ name: 'editcampaign', query: { id: item.id } }">
           <VIcon icon="tabler-edit" />
         </IconBtn>
         

@@ -1,14 +1,43 @@
 <script setup>
-import { countriesSet, languagesSet, platformsSet } from '@/assets/fixtures.js'
+import { useCampaignConstants } from "@/assets/campaignConstants"
 import DemoSelectBasic from "@/components/DemoSelectBasic.vue"
 import DemoSelectChips from "@/components/DemoSelectChips.vue"
 
+const campaignConstants = useCampaignConstants()
+
+const campTitle = ref("")
+const campGeo = ref([])
+const campLangs = ref([])
+const campPlatforms = ref([])
+const isPremium = ref("No")
+
 const createCampaing = async () => {
+  const patchPlatforms = []
+  for (let key in campaignConstants.platforms) {
+    if (campPlatforms.value.includes(campaignConstants.platforms[key])) {
+      patchPlatforms.push(key)
+    }
+  }
+
+  const patchCountries = []
+  for (let key in campaignConstants.countries) {
+    if (campGeo.value.includes(campaignConstants.countries[key])) {
+      patchCountries.push(key)
+    }
+  }
+
+  const patchLangs = []
+  for (let key in campaignConstants.languages) {
+    if (campLangs.value.includes(campaignConstants.languages[key])) {
+      patchLangs.push(key)
+    }
+  }
+
   try {
-    const res = await $api('https://tg-adsnet-api-proxy.goourl.ru/api/campaign/add/', {
+    await $api('https://tg-adsnet-api-proxy.goourl.ru/api/campaign/add/', {
       method: 'POST',
       body: {
-        "title": "test_create_camp_{current_date}",
+        "title": campTitle.value,
         "description": "test",
         "target_url": "https://web.telegram.org/k/",
         "category": 4,
@@ -19,13 +48,11 @@ const createCampaing = async () => {
         "telegram_premium": "true",
         "motivated_traffic": "true",
         "task_type": "2",
-        "platform": ["all"],
-        "country": ["France"],
-        "language": ["FR", "EN"],
+        "platform": patchPlatforms,
+        "country": patchCountries,
+        "language": patchLangs,
       },
     })
-
-    console.log(res)
   } catch (err) {
     console.error(err)
   }
@@ -44,6 +71,7 @@ const createCampaing = async () => {
       >
         <VCardText>
           <AppTextField
+            v-model="campTitle"
             label="Name"
             placeholder="Campaing name"
           />
@@ -57,7 +85,10 @@ const createCampaing = async () => {
               <!-- 👉 Chips -->
               <VCard title="GEO">
                 <VCardText>
-                  <DemoSelectChips :items="Object.keys(countriesSet)" />
+                  <DemoSelectChips
+                    v-model="campGeo"
+                    :items="Object.values(campaignConstants.countries)"
+                  />
                 </VCardText>
               </VCard>
             </VCol>
@@ -68,7 +99,10 @@ const createCampaing = async () => {
               <!-- 👉 Chips -->
               <VCard title="Language">
                 <VCardText>
-                  <DemoSelectChips :items="Object.keys(languagesSet)" />
+                  <DemoSelectChips
+                    v-model="campLangs"
+                    :items="Object.values(campaignConstants.languages)"
+                  />
                 </VCardText>
               </VCard>
             </VCol>
@@ -94,7 +128,10 @@ const createCampaing = async () => {
               <!-- 👉 Chips -->
               <VCard title="OS">
                 <VCardText>
-                  <DemoSelectChips :items="Object.keys(platformsSet)" />
+                  <DemoSelectChips
+                    v-model="campPlatforms"
+                    :items="Object.values(campaignConstants.platforms)"
+                  />
                 </VCardText>
               </VCard>
             </VCol>
@@ -109,7 +146,10 @@ const createCampaing = async () => {
               <!-- 👉 Chips -->
               <VCard title="Premium">
                 <VCardText>
-                  <DemoSelectBasic :items="['Yes', 'No']" />
+                  <DemoSelectBasic
+                    v-model="isPremium"
+                    :items="['Yes', 'No']"
+                  />
                 </VCardText>
               </VCard>
             </VCol>

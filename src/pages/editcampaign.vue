@@ -59,10 +59,6 @@ const updateCampaign = async () => {
       patchLangs.push(key)
     }
   }
-  console.log(patchCountries)
-  console.log(patchLangs)
-  console.log(patchPlatforms)
-
 
   try {
     const res = await $api(`https://tg-adsnet-api-proxy.goourl.ru/api/campaign/${route.query.id}/edit/`, {

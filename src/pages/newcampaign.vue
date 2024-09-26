@@ -10,6 +10,17 @@ const campGeo = ref([])
 const campLangs = ref([])
 const campPlatforms = ref([])
 const isPremium = ref("No")
+const targetLink = ref("")
+
+const isFormValid = computed(() => {
+  return (
+    campTitle.value &&
+    campGeo.value.length > 0 &&
+    campLangs.value.length > 0 &&
+    campPlatforms.value.length > 0 &&
+    targetLink.value
+  )
+})
 
 const createCampaing = async () => {
   const patchPlatforms = []
@@ -34,12 +45,12 @@ const createCampaing = async () => {
   }
 
   try {
-    await $api('https://tg-adsnet-api-proxy.goourl.ru/api/campaign/add/', {
+    const res = await $api('https://tg-adsnet-api-proxy.goourl.ru/api/campaign/add/', {
       method: 'POST',
       body: {
         "title": campTitle.value,
         "description": "test",
-        "target_url": "https://web.telegram.org/k/",
+        "target_url": targetLink.value,
         "category": 4,
         "cpc": 1,
         "scf": 1,
@@ -53,6 +64,10 @@ const createCampaing = async () => {
         "language": patchLangs,
       },
     })
+
+    await $api(`https://tg-adsnet-api-proxy.goourl.ru/api/campaign/${res.created.id}/to_moderate/`)
+    
+    router.push({ path: '/creatives', query: { id: res.created.id } })
   } catch (err) {
     console.error(err)
   }
@@ -88,6 +103,7 @@ const createCampaing = async () => {
                   <DemoSelectChips
                     v-model="campGeo"
                     :items="Object.values(campaignConstants.countries)"
+                    :rules="[requiredValidator]"
                   />
                 </VCardText>
               </VCard>
@@ -102,6 +118,7 @@ const createCampaing = async () => {
                   <DemoSelectChips
                     v-model="campLangs"
                     :items="Object.values(campaignConstants.languages)"
+                    :rules="[requiredValidator]"
                   />
                 </VCardText>
               </VCard>
@@ -110,17 +127,6 @@ const createCampaing = async () => {
         </VCardText>
         <VCardText>
           <VRow>
-            <VCol
-              cols="6"
-              md="6"
-            >
-              <!-- 👉 Chips -->
-              <VCard title="Device">
-                <VCardText>
-                  <DemoSelectChips />
-                </VCardText>
-              </VCard>
-            </VCol>
             <VCol
               cols="6"
               md="6"
@@ -131,14 +137,11 @@ const createCampaing = async () => {
                   <DemoSelectChips
                     v-model="campPlatforms"
                     :items="Object.values(campaignConstants.platforms)"
+                    :rules="[requiredValidator]"
                   />
                 </VCardText>
               </VCard>
             </VCol>
-          </VRow>
-        </VCardText>
-        <VCardText>
-          <VRow>
             <VCol
               cols="6"
               md="6"
@@ -181,7 +184,12 @@ const createCampaing = async () => {
               <!-- 👉 Basic -->
               <VCard>
                 <VCardText>
-                  <DemoSelectBasic label="Task type" />
+                  <AppTextField
+                    v-model="targetLink"
+                    label="Target link"
+                    type="text"
+                    :rules="[requiredValidator]"
+                  />
                 </VCardText>
               </VCard>
             </VCol>
@@ -230,7 +238,7 @@ const createCampaing = async () => {
               <VCard>
                 <VCardText>
                   <AppTextField
-                    label="Camaing limit"
+                    label="Campaign limit"
                     prepend-inner-icon="tabler-currency-dollar"
                     placeholder="0.00"
                   />
@@ -250,6 +258,7 @@ const createCampaing = async () => {
         <VCardText>
           <VBtn
             color="primary"
+            :disabled="!isFormValid"
             block
             @click="createCampaing"
           >

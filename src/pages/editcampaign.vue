@@ -135,17 +135,6 @@ const updateCampaign = async () => {
               md="6"
             >
               <!-- 👉 Chips -->
-              <VCard title="Device">
-                <VCardText>
-                  <DemoSelectChips />
-                </VCardText>
-              </VCard>
-            </VCol>
-            <VCol
-              cols="6"
-              md="6"
-            >
-              <!-- 👉 Chips -->
               <VCard title="OS">
                 <VCardText>
                   <DemoSelectChips
@@ -156,10 +145,6 @@ const updateCampaign = async () => {
                 </VCardText>
               </VCard>
             </VCol>
-          </VRow>
-        </VCardText>
-        <VCardText>
-          <VRow>
             <VCol
               cols="6"
               md="6"
@@ -251,7 +236,7 @@ const updateCampaign = async () => {
               <VCard>
                 <VCardText>
                   <AppTextField
-                    label="Camaing limit"
+                    label="Campaign limit"
                     prepend-inner-icon="tabler-currency-dollar"
                     placeholder="0.00"
                   />

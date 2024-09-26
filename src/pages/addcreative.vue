@@ -1,38 +1,32 @@
 <script setup>
-let title = "111"
-let description = "333"
+import { computed, ref } from 'vue'
+import { useRoute } from 'vue-router'
 
-const creativeData = {}
+const route = useRoute()
+
+const title = ref("")
+const description = ref("")
+const image = ref("")
+
+const isFormValid = computed(() => {
+  return title.value && description.value && image.value
+})
 
 const setFile = async payload => {
-  const encodedFile = await encodeImageFileAsURL(payload)
-
-  // creativeData['icon'] = encodedFile
-}
-
-function encodeImageFileAsURL(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-
-    reader.onloadend = function() {
-      resolve(reader.result)
-    }
-    reader.onerror = function() {
-      reject(reader.error)
-    }
-    reader.readAsDataURL(file)
-  })
+  image.value = payload
 }
 
 const addCreative = async () => {
-  creativeData['title'] = title
-  creativeData['description'] = description
+  const data = new FormData()
 
-  console.log(creativeData)
+  data.append("title", title.value)
+  data.append("description", description.value)
+  data.append("icon", image.value)
+  data.append("id", route.query.campId)
 
-  await $api("https://tg-adsnet-api-proxy.goourl.ru/api/campaign/140/creative/add/", {
+  await $api(`https://tg-adsnet-api-proxy.goourl.ru/api/campaign/${route.query.campId}/creative/add/`, {
     method: "POST",
-    body: JSON.stringify(creativeData),
+    body: data,
   })
 }
 </script>
@@ -91,6 +85,7 @@ const addCreative = async () => {
         <VCardText>
           <VBtn
             color="primary"
+            :disabled="!isFormValid"
             block
             @click="addCreative"
           >

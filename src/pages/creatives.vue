@@ -1,5 +1,6 @@
 <script setup>
 import { computed, ref } from 'vue'
+import { useRoute } from 'vue-router'
 
 const route = useRoute()
 
@@ -83,7 +84,7 @@ const totalOrder = computed(() => creativesData.value.length)
         <!-- 👉 New creative -->
         <VBtn
           prepend-icon="tabler-plus"
-          :to="{ name: 'addcreative' }"
+          :to="{ name: 'addcreative', query: { campId: route.query.id } }"
         >
           New creative
         </VBtn>

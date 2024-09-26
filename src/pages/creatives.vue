@@ -83,7 +83,7 @@ const totalOrder = computed(() => creativesData.value.length)
         <!-- 👉 New creative -->
         <VBtn
           prepend-icon="tabler-plus"
-          :to="{ name: 'creatives' }"
+          :to="{ name: 'addcreative' }"
         >
           New creative
         </VBtn>

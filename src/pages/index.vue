@@ -2,43 +2,45 @@
 import { computed, ref } from 'vue'
 
 const campaignData = ref([])
+const sortedCampaigns = ref([])
 
 const headers = [
   {
     title: 'CAMPAING ID',
     key: 'id',
-    sortable: false,
+    sortable: true,
   },
   {
     title: 'Status',
     key: 'status',
-    sortable: false,
+    sortable: true,
   },
   {
     title: 'Name',
-    key: 'name',
-    sortable: false,
+    key: 'title',
+    sortable: true,
   },
   {
     title: 'budget',
     key: 'total_budget',
-    sortable: false,
+    sortable: true,
   },
   {
     title: 'Date',
     key: 'date',
-    sortable: false,
+    sortable: true,
   },
   {
     title: 'Total spend',
-    key: 'totalspend',
-    sortable: false,
+    key: 'spend_budget',
+    sortable: true,
   },
-  {
-    title: 'Cost',
-    key: 'cost',
-    sortable: false,
-  },
+
+  // {
+  //   title: 'Cost',
+  //   key: 'cost',
+  //   sortable: true,
+  // },
   {
     title: 'Action',
     key: 'actions',
@@ -46,21 +48,53 @@ const headers = [
   },
 ]
 
-onMounted(async () => {
-  const data = await $api('https://tg-adsnet-api-proxy.goourl.ru/api/campaign/', {
+const sortCampaigns = options => {
+  if (!options || !options.sortBy.length) {
+    sortedCampaigns.value = campaignData.value
+  } else {
+    sortedCampaigns.value = campaignData.value.toSorted((a, b) => {
+      if (options.sortBy.length && options.sortBy[0]["order"] === "asc") {
+        return a[options.sortBy[0]["key"]] > b[options.sortBy[0]["key"]]
+      } else if (options.sortBy.length && options.sortBy[0]["order"] === "desc") {
+        return a[options.sortBy[0]["key"]] < b[options.sortBy[0]["key"]]
+      }
+    })
+  }
+}
+
+const updateOptions = options => sortCampaigns(options)
+
+const getCampaigns = async () => {
+  const data = await $api(`https://tg-adsnet-api-proxy.goourl.ru/api/campaign/?page_size=${totalItems.value}`, {
     method: 'GET',
   })
   
   campaignData.value = data.results
+  sortCampaigns()
+}
+
+onMounted(async () => {
+  getCampaigns()
 })
 
 const campaigns = computed(() => {
-  return campaignData.value.slice((page.value - 1) * itemsPerPage.value, page.value * itemsPerPage.value)
+  return sortedCampaigns.value.slice((page.value - 1) * itemsPerPage.value, page.value * itemsPerPage.value)
 })
 
 const page = ref(1)
 const itemsPerPage = ref(10)
+const totalItems = ref(10)
 const totalOrder = computed(() => campaignData.value.length)
+
+const timeFormatter = new Intl.DateTimeFormat('ru-RU', {
+  hour: 'numeric',
+  minute: 'numeric',
+  second: 'numeric',
+  hour12: false,
+  day: 'numeric',
+  month: 'numeric',
+  year: 'numeric',
+})
 </script>
 
 <template>
@@ -68,7 +102,7 @@ const totalOrder = computed(() => campaignData.value.length)
     <VCardText class="d-flex justify-space-between align-center flex-wrap gap-4">
       <div class="d-flex gap-4 align-center flex-wrap">
         <div class="d-flex align-center gap-2">
-          <span>Show</span>
+          <span>Show on page</span>
           <AppSelect
             :model-value="itemsPerPage"
             :items="[
@@ -80,6 +114,21 @@ const totalOrder = computed(() => campaignData.value.length)
             ]"
             style="inline-size: 5.5rem;"
             @update:model-value="itemsPerPage = parseInt($event, 10)"
+          />
+        </div>
+        <div class="d-flex align-center gap-2">
+          <span>Total Items</span>
+          <AppSelect
+            :model-value="totalItems"
+            :items="[
+              { value: 10, title: '10' },
+              { value: 25, title: '25' },
+              { value: 50, title: '50' },
+              { value: 100, title: '100' },
+              { value: -1, title: 'All' },
+            ]"
+            style="inline-size: 5.5rem;"
+            @update:model-value="totalItems = parseInt($event, 10);getCampaigns()"
           />
         </div>
         <!-- 👉 New campaing -->
@@ -100,6 +149,7 @@ const totalOrder = computed(() => campaignData.value.length)
       :items="campaigns"
       :items-length="totalOrder"
       class="text-no-wrap"
+      @update:options="updateOptions"
     >
       <!-- Campaing ID -->
       <template #item.id="{ item }">
@@ -112,29 +162,31 @@ const totalOrder = computed(() => campaignData.value.length)
       </template>
 
       <!-- Name  -->
-      <template #item.name="{ item }">
+      <template #item.title="{ item }">
         {{ item.title }}
       </template>
 
       <!-- Budget -->
-      <template #item.budget="{ item }">
+      <template #item.total_budget="{ item }">
         {{ item.total_budget }}
       </template>
 
       <!-- Date -->
       <template #item.date="{ item }">
-        {{ item.total_budget }}
+        {{ timeFormatter.format(new Date(item.created_at)) }}
       </template>
 
       <!-- Total spend -->
-      <template #item.spend="{ item }">
-        {{ item }}
+      <template #item.spend_budget="{ item }">
+        {{ item.spend_budget }}
       </template>
 
       <!-- Cost -->
-      <template #item.cost="{ item }">
+      <!--
+        <template #item.cost="{ item }">
         {{ item.total_budget }}
-      </template>
+        </template> 
+      -->
 
       <!-- Actions -->
       <template #item.actions="{ item }">

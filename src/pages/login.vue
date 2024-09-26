@@ -49,6 +49,7 @@ const login = async () => {
     ability.update(abilityRules)
     useCookie('accessToken').value = access
     useCookie('refreshToken').value = refresh
+    useCookie('username').value = credentials.value.username
     await nextTick(() => {
       router.replace(route.query.to ? String(route.query.to) : '/')
     })

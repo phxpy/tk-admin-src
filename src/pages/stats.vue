@@ -22,7 +22,29 @@ const queryParams = ref({
 const headers = ref([])
 
 const getStats = async () => {
-  const data = await $api(`https://tg-adsnet-api-proxy.goourl.ru/api/stats/advertiser/?date_to=${dateTo.value}&date_from=${dateFrom.value}&creative_id=${queryParams.value.creativeId}&camp_id=${queryParams.value.campId}&geo_id=${queryParams.value.geoId}`, {
+  const query = []
+
+  if (dateTo.value) {
+    query.push(`date_to=${dateTo.value}`)
+  }
+
+  if (dateFrom.value) {
+    query.push(`date_from=${dateFrom.value}`)
+  }
+
+  if (queryParams.value.creativeId) {
+    query.push(`creative_id=${queryParams.value.creativeId}`)
+  }
+
+  if (queryParams.value.campId) {
+    query.push(`camp_id=${queryParams.value.campId}`)
+  }
+
+  if (queryParams.value.geoId) {
+    query.push(`geo_id=${queryParams.value.geoId}`)
+  }
+  
+  const data = await $api(`https://tg-adsnet-api-proxy.goourl.ru/api/stats/advertiser/${query.length ? `?${query.join('&')}` : ''}`, {
     method: 'GET',
   })
 

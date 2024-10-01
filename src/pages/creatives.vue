@@ -1,7 +1,9 @@
 <script setup>
+import { useCommonStore } from '@/assets/global'
 import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
+const commonStore = useCommonStore()
 const route = useRoute()
 
 const headers = [
@@ -26,13 +28,23 @@ const headers = [
     sortable: false,
   },
   {
-    title: 'Date created',
-    key: 'date-created',
+    title: 'Views',
+    key: 'views',
+    sortable: false,
+  },
+  {
+    title: 'Clicks',
+    key: 'clicks',
     sortable: false,
   },
   {
     title: 'CTR',
     key: 'ctr',
+    sortable: false,
+  },
+  {
+    title: 'Date created',
+    key: 'created_at',
     sortable: false,
   },
   {
@@ -129,18 +141,26 @@ const totalOrder = computed(() => creativesData.value.length)
       </template>
 
       <template #item.spend="{ item }">
-        {{ item.methodNumber || '-' }}
+        ???
       </template>
 
-      <template #item.date-created="{ item }">
-        {{ item.date || '-' }}
+      <template #item.views="{ item }">
+        {{ item.stats.sum_views }}
+      </template>
+
+      <template #item.clicks="{ item }">
+        {{ item.stats.sum_hits }}
       </template>
 
       <template #item.ctr="{ item }">
         {{ item.stats.ctr }}
       </template>
 
-      <template #item.actions="">
+      <template #item.created_at="{ item }">
+        {{ commonStore.timeFormatter.format(new Date(item.created_at)) }}
+      </template>
+
+      <template #item.actions="{ item }">
         <IconBtn>
           <VIcon icon="tabler-play" />
         </IconBtn>
@@ -149,7 +169,7 @@ const totalOrder = computed(() => creativesData.value.length)
           <VIcon icon="tabler-pause" />
         </IconBtn>
 
-        <IconBtn>
+        <IconBtn :to="{ name: 'editcreative', query: { campId: route.query.id, creativeId: item.id } }">
           <VIcon icon="tabler-edit" />
         </IconBtn>
         

@@ -1,6 +1,8 @@
 <script setup>
+import { useCommonStore } from '@/assets/global'
 import { computed, ref } from 'vue'
 
+const commonStore = useCommonStore()
 const campaignData = ref([])
 const sortedCampaigns = ref([])
 
@@ -52,13 +54,26 @@ const sortCampaigns = options => {
   if (!options || !options.sortBy.length) {
     sortedCampaigns.value = campaignData.value
   } else {
-    sortedCampaigns.value = campaignData.value.toSorted((a, b) => {
-      if (options.sortBy.length && options.sortBy[0]["order"] === "asc") {
-        return a[options.sortBy[0]["key"]] > b[options.sortBy[0]["key"]]
-      } else if (options.sortBy.length && options.sortBy[0]["order"] === "desc") {
-        return a[options.sortBy[0]["key"]] < b[options.sortBy[0]["key"]]
-      }
-    })
+    if (options.sortBy[0].key === "date") {
+      sortedCampaigns.value = campaignData.value.toSorted((a, b) => {
+        const aDate = +(new Date(a["created_at"]))
+        const bDate = +(new Date(b["created_at"]))
+
+        if (options.sortBy.length && options.sortBy[0]["order"] === "asc") {
+          return aDate > bDate
+        } else if (options.sortBy.length && options.sortBy[0]["order"] === "desc") {
+          return aDate < bDate
+        }
+      })
+    } else {
+      sortedCampaigns.value = campaignData.value.toSorted((a, b) => {
+        if (options.sortBy.length && options.sortBy[0]["order"] === "asc") {
+          return a[options.sortBy[0]["key"]] > b[options.sortBy[0]["key"]]
+        } else if (options.sortBy.length && options.sortBy[0]["order"] === "desc") {
+          return a[options.sortBy[0]["key"]] < b[options.sortBy[0]["key"]]
+        }
+      })
+    }
   }
 }
 
@@ -85,16 +100,6 @@ const page = ref(1)
 const itemsPerPage = ref(10)
 const totalItems = ref(10)
 const totalOrder = computed(() => campaignData.value.length)
-
-const timeFormatter = new Intl.DateTimeFormat('ru-RU', {
-  hour: 'numeric',
-  minute: 'numeric',
-  second: 'numeric',
-  hour12: false,
-  day: 'numeric',
-  month: 'numeric',
-  year: 'numeric',
-})
 </script>
 
 <template>
@@ -110,7 +115,7 @@ const timeFormatter = new Intl.DateTimeFormat('ru-RU', {
               { value: 25, title: '25' },
               { value: 50, title: '50' },
               { value: 100, title: '100' },
-              { value: -1, title: 'All' },
+              { value: 1000, title: 'All' },
             ]"
             style="inline-size: 5.5rem;"
             @update:model-value="itemsPerPage = parseInt($event, 10)"
@@ -125,7 +130,7 @@ const timeFormatter = new Intl.DateTimeFormat('ru-RU', {
               { value: 25, title: '25' },
               { value: 50, title: '50' },
               { value: 100, title: '100' },
-              { value: -1, title: 'All' },
+              { value: 1000, title: 'All' },
             ]"
             style="inline-size: 5.5rem;"
             @update:model-value="totalItems = parseInt($event, 10);getCampaigns()"
@@ -173,7 +178,7 @@ const timeFormatter = new Intl.DateTimeFormat('ru-RU', {
 
       <!-- Date -->
       <template #item.date="{ item }">
-        {{ timeFormatter.format(new Date(item.created_at)) }}
+        {{ commonStore.timeFormatter.format(new Date(item.created_at)) }}
       </template>
 
       <!-- Total spend -->

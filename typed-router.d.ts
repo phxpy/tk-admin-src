@@ -23,6 +23,7 @@ declare module 'vue-router/auto-routes' {
     'addcreative': RouteRecordInfo<'addcreative', '/addcreative', Record<never, never>, Record<never, never>>,
     'creatives': RouteRecordInfo<'creatives', '/creatives', Record<never, never>, Record<never, never>>,
     'editcampaign': RouteRecordInfo<'editcampaign', '/editcampaign', Record<never, never>, Record<never, never>>,
+    'editcreative': RouteRecordInfo<'editcreative', '/editcreative', Record<never, never>, Record<never, never>>,
     'login': RouteRecordInfo<'login', '/login', Record<never, never>, Record<never, never>>,
     'newcampaign': RouteRecordInfo<'newcampaign', '/newcampaign', Record<never, never>, Record<never, never>>,
     'reg': RouteRecordInfo<'reg', '/reg', Record<never, never>, Record<never, never>>,

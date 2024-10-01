@@ -143,17 +143,17 @@ const setTableHeaders = () => {
     ...checkBxs.value.isCampaignColumnShown ? [{
       title: 'Кампания',
       key: 'campaign',
-      sortable: true,
+      sortable: false,
     }] : [],
     ...checkBxs.value.isCreativeColumnShown ? [{
       title: 'Креатив',
       key: 'creative',
-      sortable: true,
+      sortable: false,
     }] : [],
     ...checkBxs.value.isGeoColumnShown ? [{
       title: 'ГЕО',
       key: 'geo',
-      sortable: true,
+      sortable: false,
     }] : [],
     {
       title: 'Показы',

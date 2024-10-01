@@ -141,7 +141,7 @@ const totalOrder = computed(() => creativesData.value.length)
       </template>
 
       <template #item.spend="{ item }">
-        ???
+        {{ item.sum_advert }}
       </template>
 
       <template #item.views="{ item }">

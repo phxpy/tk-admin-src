@@ -102,7 +102,7 @@ onMounted(async () => {
             block
             @click="addCreative"
           >
-            Add creative
+            Edit creative
           </VBtn>
         </VCardText>
       </VCard>

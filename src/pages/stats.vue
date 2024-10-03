@@ -22,18 +22,18 @@ const totalData = ref([])
 const sortedStats = ref([])
 
 const campaignsList = ref([])
-const geoList = ref([])
 
 const checkBxs = ref({
-  isDateColumnShown: true,
-  isCampaignColumnShown: false,
-  isCreativeColumnShown: false,
-  isGeoColumnShown: false,
+  eventDateShown: true,
+  campIdShown: false,
+  creativeIdShown: false,
+  geoIdShown: false,
 })
 
-const creativeId = ref("")
-const campId = ref("")
-const geoId = ref("")
+const campId = ref([])
+const creativeId = ref([])
+const geoId = ref([])
+const platformId = ref([])
 
 const headers = ref([])
 
@@ -87,6 +87,9 @@ const sortStats = options => {
 const getStats = async () => {
   const query = []
 
+  stats.value = []
+  totalData.value = {}
+
   if (dateTo.value) {
     query.push(`date_to=${dateTo.value}`)
   }
@@ -95,34 +98,87 @@ const getStats = async () => {
     query.push(`date_from=${dateFrom.value}`)
   }
 
-  if (creativeId.value) {
-    query.push(`creative_id=${creativeId.value}`)
-  }
-
-  if (campId.value) {
-    query.push(`camp_id=${campId.value}`)
-  }
-
-  if (geoId.value) {
+  const geoAbbrList = []
+  if (geoId.value.length) {
     let geoAbbr = ""
 
-    for (const val in campaignConstants.countries) {      
-      if (geoId.value === campaignConstants.countries[val]) {
-        geoAbbr = val
-      }
+    for (const val in campaignConstants.countries) {
+      geoId.value.forEach(id => {
+        if (id === campaignConstants.countries[val]) {
+          geoAbbr = val
+        }
+      })
     }
 
-    query.push(`geo_id=${geoAbbr}`)
+    geoAbbrList.push(geoAbbr)
+  }
+
+  const groupBy = []
+  for (const key in checkBxs.value) {
+    if (checkBxs.value[key]) {
+      groupBy.push(key.slice(0, -5))
+    }
+  }
+  if (groupBy.length) {
+    query.push(`group_by=${groupBy}`)
+  }
+
+  if (campId.value.length) {
+    campId.value.forEach(id => {
+      const index = query.findIndex(item => item.includes("camp_id"))
+
+      if (index !== -1) {
+        query[index] = `camp_id=${id}`
+      } else {
+        query.push(`camp_id=${id}`)
+      }
+
+      fetchData(query)
+    })
+  }
+
+  if (creativeId.value.length) {
+    creativeId.value.forEach(id => {
+      const index = query.findIndex(item => item.includes("creative_id"))
+
+      if (index !== -1) {
+        query[index] = `creative_id=${id}`
+      } else {
+        query.push(`creative_id=${id}`)
+      }
+
+      fetchData(query)
+    })
+  }
+
+  if (geoAbbrList.length) {
+    geoAbbrList.forEach(id => {
+      const index = query.findIndex(item => item.includes("geo"))
+
+      if (index !== -1) {
+        query[index] = `geo=${id}`
+      } else {
+        query.push(`geo=${id}`)
+      }
+
+      fetchData(query)
+    })
+  }
+
+  if (!campId.value.length && !creativeId.value.length && !geoAbbrList.length && !platformId.value.length) {
+    fetchData(query)
   }
   
-  const data = await $api(`https://tg-adsnet-api-proxy.goourl.ru/api/stats/advertiser/${query.length ? `?${query.join('&')}` : ''}`, {
-    method: 'GET',
-  })
-
-  stats.value = data.data
-  totalData.value = data.total
-
-  sortStats()
+  async function fetchData(query) {
+    const data = await $api(`https://tg-adsnet-api-proxy.goourl.ru/api/stats/advertiser/${query.length ? `?${query.join('&')}` : ''}`, {
+      method: 'GET',
+    })
+  
+    stats.value.push(...data.data)
+    totalData.value = data.total
+  
+    sortStats()
+  }
 }
 
 const getCampaigns = async () => {
@@ -135,33 +191,38 @@ const getCampaigns = async () => {
 
 const setTableHeaders = () => {
   headers.value = [
-    ...checkBxs.value.isDateColumnShown ? [{
-      title: 'Дата',
+    {
+      title: '',
+      key: 'total_header',
+      sortable: false,
+    },
+    ...checkBxs.value.eventDateShown ? [{
+      title: 'Date',
       key: 'eventDate',
       sortable: true,
     }] : [],
-    ...checkBxs.value.isCampaignColumnShown ? [{
-      title: 'Кампания',
+    ...checkBxs.value.campIdShown ? [{
+      title: 'Campaign',
       key: 'campaign',
       sortable: false,
     }] : [],
-    ...checkBxs.value.isCreativeColumnShown ? [{
-      title: 'Креатив',
+    ...checkBxs.value.creativeIdShown ? [{
+      title: 'Creative',
       key: 'creative',
       sortable: false,
     }] : [],
-    ...checkBxs.value.isGeoColumnShown ? [{
-      title: 'ГЕО',
+    ...checkBxs.value.geoIdShown ? [{
+      title: 'GEO',
       key: 'geo',
       sortable: false,
     }] : [],
     {
-      title: 'Показы',
+      title: 'Views',
       key: 'sum_views',
       sortable: true,
     },
     {
-      title: 'Клики',
+      title: 'Hits',
       key: 'sum_hits',
       sortable: true,
     },
@@ -171,7 +232,7 @@ const setTableHeaders = () => {
       sortable: true,
     },
     {
-      title: 'Действия',
+      title: 'Actions',
       key: 'sum_action',
       sortable: true,
     },
@@ -181,32 +242,11 @@ const setTableHeaders = () => {
       sortable: true,
     },
     {
-      title: 'CPT (cost per task)',
-      key: 'cpt',
-      sortable: true,
-    },
-    {
-      title: 'Затраты',
+      title: 'Advert',
       key: 'sum_advert',
       sortable: true,
     },
   ]
-}
-
-const getGeoList = async id => {
-  if (campId.value) {
-    const data = await $api(`https://tg-adsnet-api-proxy.goourl.ru/api/campaign/${id}/`, {
-      method: 'GET',
-    })
-
-    geoList.value = []
-    
-    if (data.country.length) {
-      data.country.forEach(item => {
-        geoList.value.push(campaignConstants.countries[item])
-      })
-    }
-  }
 }
 
 onMounted(() => {
@@ -216,6 +256,26 @@ onMounted(() => {
 })
 
 // computed props
+const platformsList = computed(() => {
+  const list = []
+
+  for (const prop in campaignConstants.platforms) {
+    list.push(campaignConstants.platforms[prop])
+  }
+
+  return list
+})
+
+const geoList = computed(() => {
+  const list = []
+
+  for (const prop in campaignConstants.countries) {
+    list.push(campaignConstants.countries[prop])
+  }
+
+  return list
+})
+
 const statsData = computed(() => {
   return sortedStats.value.slice((page.value - 1) * itemsPerPage.value, page.value * itemsPerPage.value)
 })
@@ -249,30 +309,54 @@ const campaignsIds = computed(() => {
 })
 
 const creativeIds = computed(() => {
-  if (!campId.value) {
+  if (!campId.value.length) {
     return []
   } else {
-    const item = campaignsList.value.find(item => item.id === campId.value)
+    let creatives = []
+    const campaigns = []
 
-    creativeId.value = ""
-    geoId.value = ""
+    campId.value.forEach(id => {
+      campaigns.push(campaignsList.value.find(item => item.id === id))
+    })
 
-    return item.creatives
+    campaigns.forEach(item => {
+      creatives.push(...item.creatives)
+    })
+    
+    return creatives
   }
 })
 
-// watchers
-// watch(dateTo, () => {
-//   getStats()
-// })
-
-// watch(dateFrom, () => {
-//   getStats()
-// })
+watch(dateRange, () => {
+  if (dateRange.value) {
+    getStats()
+  }
+}, { deep: true })
 
 watch(campId, () => {
   if (campId.value) {
-    getGeoList(campId.value)
+    getStats()
+  }
+  if (!campId.value.length) {
+    creativeId.value = []
+  }
+}, { deep: true })
+
+watch(creativeId, () => {
+  if (creativeId.value) {
+    getStats()
+  }
+}, { deep: true })
+
+watch(geoId, () => {
+  if (geoId.value) {
+    getStats()
+  }
+}, { deep: true })
+
+watch(platformId, () => {
+  if (platformId.value) {
+    getStats()
   }
 }, { deep: true })
 
@@ -285,8 +369,8 @@ watch(checkBxs, () => {
 <template>
   <VRow>
     <VCol
-      cols="3"
-      md="3"
+      cols="4"
+      md="4"
     >
       <VCard title="Date Range">
         <VCardText>
@@ -295,40 +379,61 @@ watch(checkBxs, () => {
       </VCard>
     </VCol>
     <VCol
-      cols="3"
-      md="3"
+      cols="2"
+      md="2"
     >
-      <VCard title="Кампания">
+      <VCard title="Campaign">
         <VCardText>
-          <DemoSelectBasic
+          <AppSelect
             v-model="campId"
             :items="campaignsIds"
+            multiple
+            placeholder="Campaigns"
           />
         </VCardText>
       </VCard>
     </VCol>
     <VCol
-      cols="3"
-      md="3"
+      cols="2"
+      md="2"
     >
-      <VCard title="Креатив">
+      <VCard title="Creative">
         <VCardText>
-          <DemoSelectBasic
+          <AppSelect
             v-model="creativeId"
             :items="creativeIds"
+            multiple
+            placeholder="Creatives"
           />
         </VCardText>
       </VCard>
     </VCol>
     <VCol
-      cols="3"
-      md="3"
+      cols="2"
+      md="2"
     >
-      <VCard title="ГЕО">
+      <VCard title="GEO">
         <VCardText>
-          <DemoSelectBasic
+          <AppSelect
             v-model="geoId"
             :items="geoList"
+            multiple
+            placeholder="GEO"
+          />
+        </VCardText>
+      </VCard>
+    </VCol>
+    <VCol
+      cols="2"
+      md="2"
+    >
+      <VCard title="Platform">
+        <VCardText>
+          <AppSelect
+            v-model="platformId"
+            :items="platformsList"
+            multiple
+            placeholder="Platforms"
           />
         </VCardText>
       </VCard>
@@ -339,24 +444,20 @@ watch(checkBxs, () => {
       <VCard>
         <VCardText class="d-flex">
           <VCheckbox
-            v-model="checkBxs.isDateColumnShown"
-            :disabled="!dateRange"
-            label="Дата"
+            v-model="checkBxs.eventDateShown"
+            label="Date"
           />
           <VCheckbox
-            v-model="checkBxs.isCampaignColumnShown"
-            :disabled="!campId"
-            label="Кампания"
+            v-model="checkBxs.campIdShown"
+            label="Campaign"
           />
           <VCheckbox
-            v-model="checkBxs.isCreativeColumnShown"
-            :disabled="!creativeId"
-            label="Креатив"
+            v-model="checkBxs.creativeIdShown"
+            label="Creative"
           />
           <VCheckbox
-            v-model="checkBxs.isGeoColumnShown"
-            :disabled="!geoId"
-            label="ГЕО"
+            v-model="checkBxs.geoIdShown"
+            label="GEO"
           />
         </VCardText>
       </VCard>
@@ -376,29 +477,30 @@ watch(checkBxs, () => {
           class="text-no-wrap"
           @update:options="updateOptions"
         >
+          <template #item.total_header />
           <template
-            v-if="checkBxs.isDateColumnShown"
+            v-if="checkBxs.eventDateShown"
             #item.eventDate="{ item }"
           >
             {{ item.eventDate }}
           </template>
 
           <template
-            v-if="checkBxs.isCampaignColumnShown"
+            v-if="checkBxs.campIdShown"
             #item.campaign
           >
             {{ campId }}
           </template>
 
           <template
-            v-if="checkBxs.isCreativeColumnShown"
+            v-if="checkBxs.creativeIdShown"
             #item.creative
           >
             {{ creativeId }}
           </template>
 
           <template
-            v-if="checkBxs.isGeoColumnShown"
+            v-if="checkBxs.geoIdShown"
             #item.geo
           >
             {{ geoId }}
@@ -424,25 +526,23 @@ watch(checkBxs, () => {
             {{ item.cpc }}
           </template>
 
-          <template #item.cpt="{ item }" />
-
           <template #item.sum_advert="{ item }">
             {{ item.sum_advert }}
           </template>
 
           <template #body.append>
             <tr class="table-total-bottom">
-              <td v-if="checkBxs.isDateColumnShown" />
-              <td v-if="checkBxs.isCampaignColumnShown" />
-              <td v-if="checkBxs.isCreativeColumnShown" />
-              <td v-if="checkBxs.isGeoColumnShown" />
+              <td>Total</td>
+              <td v-if="checkBxs.eventDateShown" />
+              <td v-if="checkBxs.campIdShown" />
+              <td v-if="checkBxs.creativeIdShown" />
+              <td v-if="checkBxs.geoIdShown" />
               <td>{{ totalData.total_views }}</td>
               <td>{{ totalData.total_hits }}</td>
               <td>{{ parseFloat(totalData.total_ctr).toFixed(2) }}</td>
               <td>{{ totalData.total_actions }}</td>
-              <td>{{ totalData.total_cpc }}</td>
-              <td />
-              <td>{{ totalData.total_advert }}</td>
+              <td>{{ parseFloat(totalData.total_cpc).toFixed(2) }}</td>
+              <td>{{ parseFloat(totalData.total_advert).toFixed(2) }}</td>
             </tr>
           </template>
 

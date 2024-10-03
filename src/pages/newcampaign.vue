@@ -2,6 +2,7 @@
 import { useCampaignConstants } from "@/assets/campaignConstants"
 import DemoSelectBasic from "@/components/DemoSelectBasic.vue"
 import DemoSelectChips from "@/components/DemoSelectChips.vue"
+import { onMounted } from "vue"
 
 const campaignConstants = useCampaignConstants()
 
@@ -11,6 +12,20 @@ const campLangs = ref([])
 const campPlatforms = ref([])
 const isPremium = ref("No")
 const targetLink = ref("")
+const taskTypes = ref([])
+const chosenTask = ref("")
+
+const loadings = ref([])
+
+onMounted(async () => {
+  const data = await $api("https://tg-adsnet-api-proxy.goourl.ru/api/campaign/tasks/", {
+    method: "GET",
+  })
+
+  for (const key in Object.keys(data)) {
+    taskTypes.value.push(data[key])
+  }
+})
 
 const isFormValid = computed(() => {
   return (
@@ -18,7 +33,8 @@ const isFormValid = computed(() => {
     campGeo.value.length > 0 &&
     campLangs.value.length > 0 &&
     campPlatforms.value.length > 0 &&
-    targetLink.value
+    targetLink.value &&
+    chosenTask.value
   )
 })
 
@@ -65,7 +81,9 @@ const createCampaing = async () => {
       },
     })
 
-    await $api(`https://tg-adsnet-api-proxy.goourl.ru/api/campaign/${res.created.id}/to_moderate/`)
+    await $api(`https://tg-adsnet-api-proxy.goourl.ru/api/campaign/${res.created.id}/to_moderate/`, {
+      method: 'POST',
+    })
     
     router.push({ path: '/creatives', query: { id: res.created.id } })
   } catch (err) {
@@ -173,7 +191,12 @@ const createCampaing = async () => {
               <!-- 👉 Basic -->
               <VCard>
                 <VCardText>
-                  <DemoSelectBasic label="Task type" />
+                  <DemoSelectBasic
+                    v-model="chosenTask"
+                    label="Task type"
+                    :items="taskTypes"
+                    :rules="[requiredValidator]"
+                  />
                 </VCardText>
               </VCard>
             </VCol>
@@ -188,7 +211,7 @@ const createCampaing = async () => {
                     v-model="targetLink"
                     label="Target link"
                     type="text"
-                    :rules="[requiredValidator]"
+                    :rules="[requiredValidator, urlValidator]"
                   />
                 </VCardText>
               </VCard>
@@ -257,6 +280,7 @@ const createCampaing = async () => {
       <VCard class="campaing-btn-card">
         <VCardText>
           <VBtn
+            :loading="loadings[0]"
             color="primary"
             :disabled="!isFormValid"
             block

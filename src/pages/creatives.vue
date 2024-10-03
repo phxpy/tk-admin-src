@@ -61,7 +61,7 @@ onMounted(async () => {
     method: 'GET',
   })
   
-  creativesData.value = data.results
+  creativesData.value = data
 })
 
 const page = ref(1)

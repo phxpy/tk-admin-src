@@ -6,6 +6,9 @@ const commonStore = useCommonStore()
 const campaignData = ref([])
 const sortedCampaigns = ref([])
 
+const page = ref(1)
+const itemsPerPage = ref(10)
+
 const headers = [
   {
     title: 'CAMPAING ID',
@@ -80,11 +83,11 @@ const sortCampaigns = options => {
 const updateOptions = options => sortCampaigns(options)
 
 const getCampaigns = async () => {
-  const data = await $api(`https://tg-adsnet-api-proxy.goourl.ru/api/campaign/?page_size=${totalItems.value}`, {
+  const data = await $api("https://tg-adsnet-api-proxy.goourl.ru/api/campaign/", {
     method: 'GET',
   })
   
-  campaignData.value = data.results
+  campaignData.value = data
   sortCampaigns()
 }
 
@@ -93,13 +96,20 @@ onMounted(async () => {
 })
 
 const campaigns = computed(() => {
-  return sortedCampaigns.value.slice((page.value - 1) * itemsPerPage.value, page.value * itemsPerPage.value)
+  if (!sortedCampaigns.value || !sortedCampaigns.value.length) {
+    return []
+  } else {
+    return sortedCampaigns.value.slice((page.value - 1) * itemsPerPage.value, page.value * itemsPerPage.value)
+  }
 })
 
-const page = ref(1)
-const itemsPerPage = ref(10)
-const totalItems = ref(10)
-const totalOrder = computed(() => campaignData.value.length)
+const totalOrder = computed(() => {
+  if (!campaignData.value || !campaignData.value.length) {
+    return 0
+  } else {
+    return campaignData.value.length
+  }
+})
 </script>
 
 <template>
@@ -119,21 +129,6 @@ const totalOrder = computed(() => campaignData.value.length)
             ]"
             style="inline-size: 5.5rem;"
             @update:model-value="itemsPerPage = parseInt($event, 10)"
-          />
-        </div>
-        <div class="d-flex align-center gap-2">
-          <span>Total Items</span>
-          <AppSelect
-            :model-value="totalItems"
-            :items="[
-              { value: 10, title: '10' },
-              { value: 25, title: '25' },
-              { value: 50, title: '50' },
-              { value: 100, title: '100' },
-              { value: 1000, title: 'All' },
-            ]"
-            style="inline-size: 5.5rem;"
-            @update:model-value="totalItems = parseInt($event, 10);getCampaigns()"
           />
         </div>
         <!-- 👉 New campaing -->

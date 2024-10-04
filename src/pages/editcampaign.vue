@@ -126,7 +126,7 @@ const updateCampaign = async () => {
           />
         </VCardText>
         <VCardText>
-          <AppTextarea
+          <AppTextField
             v-model="campDesc"
             label="Campaing description"
             placeholder="Campaing description"

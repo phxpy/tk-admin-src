@@ -61,12 +61,19 @@ const createCampaing = async () => {
     }
   }
 
+  let patchType = ""
+  for (const key in Object.keys(taskTypesObj.value)) {
+    if (selectedTaskType.value === taskTypesObj.value[key]) {
+      patchType = taskTypesObj.value[key]
+    }
+  }
+
   try {
     const res = await $api('https://tg-adsnet-api-proxy.goourl.ru/api/campaign/add/', {
       method: 'POST',
       body: {
         "title": campTitle.value,
-        "description": "test",
+        "description": campDesc.value,
         "target_url": targetLink.value,
         "category": 4,
         "cpc": 1,
@@ -75,7 +82,7 @@ const createCampaing = async () => {
         "total_budget": "100",
         "telegram_premium": "true",
         "motivated_traffic": "true",
-        "task_type": "2",
+        "task_type": patchType,
         "platform": patchPlatforms,
         "country": patchCountries,
         "language": patchLangs,
@@ -112,7 +119,7 @@ const createCampaing = async () => {
           />
         </VCardText>
         <VCardText>
-          <AppTextarea
+          <AppTextField
             v-model="campDesc"
             label="Campaing description"
             placeholder="Campaing description"

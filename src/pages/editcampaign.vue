@@ -5,12 +5,18 @@ import DemoSelectChips from "@/components/DemoSelectChips.vue"
 import { onBeforeMount, ref } from "vue"
 import { useRoute } from 'vue-router'
 
+const taskTypesObj = ref({})
+
 const campaignData = ref({})
 const isPremium = ref("")
 const itemTitle = ref("")
+const campDesc = ref("")
 const selectedLangs = ref([])
 const selectedCountries = ref([])
 const selectedPlatforms = ref([])
+const selectedTaskType = ref("")
+const targetLink = ref("")
+const taskTypes = ref([])
 
 const route = useRoute()
 const campaignConstants = useCampaignConstants()
@@ -24,6 +30,7 @@ onBeforeMount(async () => {
 
   res.telegram_premium ? isPremium.value = "Yes" : isPremium.value = "No"
   itemTitle.value = res.title
+  campDesc.value = res.description
 
   res.language.forEach(lang => {
     selectedLangs.value.push(campaignConstants.languages[lang])
@@ -36,6 +43,20 @@ onBeforeMount(async () => {
   res.platform.forEach(platform => {
     selectedPlatforms.value.push(campaignConstants.platforms[platform])
   })
+
+  const data = await $api("https://tg-adsnet-api-proxy.goourl.ru/api/campaign/tasks/", {
+    method: "GET",
+  })
+
+  taskTypesObj.value = data
+
+  for (const key in Object.keys(data)) {
+    taskTypes.value.push(data[key])
+  }
+
+  selectedTaskType.value = taskTypesObj.value[res.task_type]
+
+  targetLink.value = res.target_url
 })
 
 const updateCampaign = async () => {  
@@ -60,15 +81,25 @@ const updateCampaign = async () => {
     }
   }
 
+  let patchType = ""
+  for (const key in Object.keys(taskTypesObj.value)) {
+    if (selectedTaskType.value === taskTypesObj.value[key]) {
+      patchType = taskTypesObj.value[key]
+    }
+  }
+
   try {
     const res = await $api(`https://tg-adsnet-api-proxy.goourl.ru/api/campaign/${route.query.id}/edit/`, {
       method: 'PATCH',
       body: {
         "title": itemTitle.value,
+        "description": campDesc.value,
         "telegram_premium": isPremium.value,
         "platform": patchPlatforms,
         "country": patchCountries,
         "language": patchLangs,
+        "target_url": targetLink.value,
+        "task_type": patchType,
       },
     })
   } catch (err) {
@@ -92,6 +123,14 @@ const updateCampaign = async () => {
             v-model="itemTitle"
             label="Name"
             placeholder="Campaing name"
+          />
+        </VCardText>
+        <VCardText>
+          <AppTextarea
+            v-model="campDesc"
+            label="Campaing description"
+            placeholder="Campaing description"
+            :rules="[requiredValidator]"
           />
         </VCardText>
         <VCardText>
@@ -176,7 +215,11 @@ const updateCampaign = async () => {
               <!-- 👉 Basic -->
               <VCard>
                 <VCardText>
-                  <DemoSelectBasic label="Task type" />
+                  <DemoSelectBasic
+                    v-model="selectedTaskType"
+                    label="Task type"
+                    :items="taskTypes"
+                  />
                 </VCardText>
               </VCard>
             </VCol>
@@ -187,7 +230,12 @@ const updateCampaign = async () => {
               <!-- 👉 Basic -->
               <VCard>
                 <VCardText>
-                  <DemoSelectBasic label="Task type" />
+                  <AppTextField
+                    v-model="targetLink"
+                    label="Target link"
+                    type="text"
+                    :rules="[requiredValidator, urlValidator]"
+                  />
                 </VCardText>
               </VCard>
             </VCol>

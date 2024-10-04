@@ -7,6 +7,7 @@ import { onMounted } from "vue"
 const campaignConstants = useCampaignConstants()
 
 const campTitle = ref("")
+const campDesc = ref("")
 const campGeo = ref([])
 const campLangs = ref([])
 const campPlatforms = ref([])
@@ -107,6 +108,15 @@ const createCampaing = async () => {
             v-model="campTitle"
             label="Name"
             placeholder="Campaing name"
+            :rules="[requiredValidator]"
+          />
+        </VCardText>
+        <VCardText>
+          <AppTextarea
+            v-model="campDesc"
+            label="Campaing description"
+            placeholder="Campaing description"
+            :rules="[requiredValidator]"
           />
         </VCardText>
         <VCardText>

@@ -28,6 +28,7 @@ const checkBxs = ref({
   campIdShown: false,
   creativeIdShown: false,
   geoIdShown: false,
+  deviceIdShown: false,
 })
 
 const campId = ref([])
@@ -113,14 +114,10 @@ const getStats = async () => {
     geoAbbrList.push(geoAbbr)
   }
 
-  const groupBy = []
   for (const key in checkBxs.value) {
     if (checkBxs.value[key]) {
-      groupBy.push(key.slice(0, -5))
+      query.push(`group_by=${key.slice(0, -5)}`)
     }
-  }
-  if (groupBy.length) {
-    query.push(`group_by=${groupBy}`)
   }
 
   if (campId.value.length) {
@@ -151,14 +148,14 @@ const getStats = async () => {
     })
   }
 
-  if (geoAbbrList.length) {
-    geoAbbrList.forEach(id => {
-      const index = query.findIndex(item => item.includes("geo"))
+  if (platformId.value.length) {
+    platformId.value.forEach(id => {
+      const index = query.findIndex(item => item.includes("platform"))
 
       if (index !== -1) {
-        query[index] = `geo=${id}`
+        query[index] = `platform=${id}`
       } else {
-        query.push(`geo=${id}`)
+        query.push(`platform=${id}`)
       }
 
       fetchData(query)
@@ -214,6 +211,11 @@ const setTableHeaders = () => {
     ...checkBxs.value.geoIdShown ? [{
       title: 'GEO',
       key: 'geo',
+      sortable: false,
+    }] : [],
+    ...checkBxs.value.deviceIdShown ? [{
+      title: 'Platform',
+      key: 'platform',
       sortable: false,
     }] : [],
     {
@@ -459,6 +461,10 @@ watch(checkBxs, () => {
             v-model="checkBxs.geoIdShown"
             label="GEO"
           />
+          <VCheckbox
+            v-model="checkBxs.deviceIdShown"
+            label="Platform"
+          />
         </VCardText>
       </VCard>
     </VCol>
@@ -504,6 +510,13 @@ watch(checkBxs, () => {
             #item.geo
           >
             {{ geoId }}
+          </template>
+
+          <template
+            v-if="checkBxs.deviceIdShown"
+            #item.platform
+          >
+            {{ platformId }}
           </template>
 
           <template #item.sum_views="{ item }">

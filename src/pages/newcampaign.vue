@@ -6,6 +6,8 @@ import { onMounted } from "vue"
 
 const campaignConstants = useCampaignConstants()
 
+const taskTypesObj = ref({})
+
 const campTitle = ref("")
 const campDesc = ref("")
 const campGeo = ref([])
@@ -14,7 +16,7 @@ const campPlatforms = ref([])
 const isPremium = ref("No")
 const targetLink = ref("")
 const taskTypes = ref([])
-const chosenTask = ref("")
+const selectedTaskType = ref("")
 
 const loadings = ref([])
 
@@ -22,6 +24,8 @@ onMounted(async () => {
   const data = await $api("https://tg-adsnet-api-proxy.goourl.ru/api/campaign/tasks/", {
     method: "GET",
   })
+
+  taskTypesObj.value = data
 
   for (const key in Object.keys(data)) {
     taskTypes.value.push(data[key])
@@ -35,7 +39,7 @@ const isFormValid = computed(() => {
     campLangs.value.length > 0 &&
     campPlatforms.value.length > 0 &&
     targetLink.value &&
-    chosenTask.value
+    selectedTaskType.value
   )
 })
 
@@ -64,7 +68,7 @@ const createCampaing = async () => {
   let patchType = ""
   for (const key in Object.keys(taskTypesObj.value)) {
     if (selectedTaskType.value === taskTypesObj.value[key]) {
-      patchType = taskTypesObj.value[key]
+      patchType = key
     }
   }
 
@@ -82,7 +86,7 @@ const createCampaing = async () => {
         "total_budget": "100",
         "telegram_premium": "true",
         "motivated_traffic": "true",
-        "task_type": patchType,
+        "task_type": `${patchType}`,
         "platform": patchPlatforms,
         "country": patchCountries,
         "language": patchLangs,
@@ -209,7 +213,7 @@ const createCampaing = async () => {
               <VCard>
                 <VCardText>
                   <DemoSelectBasic
-                    v-model="chosenTask"
+                    v-model="selectedTaskType"
                     label="Task type"
                     :items="taskTypes"
                     :rules="[requiredValidator]"

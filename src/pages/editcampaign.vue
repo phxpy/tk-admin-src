@@ -84,7 +84,7 @@ const updateCampaign = async () => {
   let patchType = ""
   for (const key in Object.keys(taskTypesObj.value)) {
     if (selectedTaskType.value === taskTypesObj.value[key]) {
-      patchType = taskTypesObj.value[key]
+      patchType = key
     }
   }
 
@@ -99,7 +99,7 @@ const updateCampaign = async () => {
         "country": patchCountries,
         "language": patchLangs,
         "target_url": targetLink.value,
-        "task_type": patchType,
+        "task_type": `${patchType}`,
       },
     })
   } catch (err) {

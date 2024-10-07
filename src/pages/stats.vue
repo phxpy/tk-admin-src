@@ -1,5 +1,6 @@
 <script setup>
 import { useCampaignConstants } from '@/assets/campaignConstants'
+import { isEqual, uniqWith } from 'lodash'
 import { computed, ref, watch } from 'vue'
 
 const campaignConstants = useCampaignConstants()
@@ -178,8 +179,9 @@ const getStats = async () => {
     const data = await $api(`https://tg-adsnet-api-proxy.goourl.ru/api/stats/advertiser/${query.length ? `?${query.join('&')}` : ''}`, {
       method: 'GET',
     })
-  
+    
     stats.value.push(...data.data)
+    stats.value = uniqWith(stats.value, isEqual)
     totalData.value = data.total
   
     sortStats()
@@ -278,10 +280,6 @@ onMounted(() => {
 })
 
 // computed props
-const allNullCheckboxes = computed(() => {
-  return Object.values(checkBxs.value).every(item => !item)
-})
-
 const platformsList = computed(() => {
   const list = []
 
@@ -410,13 +408,24 @@ watch(checkBxs, () => {
       md="2"
     >
       <VCard title="Campaign">
-        <VCardText>
+        <VCardText class="stats__multiselect">
           <AppSelect
             v-model="campId"
             :items="campaignsIds"
             multiple
             placeholder="Campaigns"
           />
+          <button
+            v-if="campId.length"
+            class="stats__multiselect-btn"
+            @click="campId = []"
+          >
+            <svg
+              viewBox="0 0 50 50"
+              xmlns="http://www.w3.org/2000/svg"
+            ><path d="M32.96 25 48.325 9.722c2.235-2.222 2.235-5.555 0-7.778C47.486.834 46.089 0 44.693 0c-1.397 0-2.794.556-3.91 1.667L25.14 17.222 9.777 1.944c-2.235-2.222-5.866-2.222-7.822 0A4.851 4.851 0 0 0 0 5.834C0 7.5.559 8.61 1.676 9.721L17.039 25 1.676 40.278C.838 41.388 0 42.778 0 44.444c0 1.39.559 2.778 1.676 3.89C2.793 49.443 4.19 50 5.586 50c1.397 0 2.794-.556 3.911-1.667L24.86 33.056l15.364 15.277c2.234 2.223 5.865 2.223 7.82 0 2.235-2.222 2.235-5.833 0-7.777L32.962 25Z" /></svg>
+            Reset
+          </button>
         </VCardText>
       </VCard>
     </VCol>
@@ -425,13 +434,24 @@ watch(checkBxs, () => {
       md="2"
     >
       <VCard title="Creative">
-        <VCardText>
+        <VCardText class="stats__multiselect">
           <AppSelect
             v-model="creativeId"
             :items="creativeIds"
             multiple
             placeholder="Creatives"
           />
+          <button
+            v-if="creativeId.length"
+            class="stats__multiselect-btn"
+            @click="creativeId = []"
+          >
+            <svg
+              viewBox="0 0 50 50"
+              xmlns="http://www.w3.org/2000/svg"
+            ><path d="M32.96 25 48.325 9.722c2.235-2.222 2.235-5.555 0-7.778C47.486.834 46.089 0 44.693 0c-1.397 0-2.794.556-3.91 1.667L25.14 17.222 9.777 1.944c-2.235-2.222-5.866-2.222-7.822 0A4.851 4.851 0 0 0 0 5.834C0 7.5.559 8.61 1.676 9.721L17.039 25 1.676 40.278C.838 41.388 0 42.778 0 44.444c0 1.39.559 2.778 1.676 3.89C2.793 49.443 4.19 50 5.586 50c1.397 0 2.794-.556 3.911-1.667L24.86 33.056l15.364 15.277c2.234 2.223 5.865 2.223 7.82 0 2.235-2.222 2.235-5.833 0-7.777L32.962 25Z" /></svg>
+            Reset
+          </button>
         </VCardText>
       </VCard>
     </VCol>
@@ -440,13 +460,24 @@ watch(checkBxs, () => {
       md="2"
     >
       <VCard title="GEO">
-        <VCardText>
+        <VCardText class="stats__multiselect">
           <AppSelect
             v-model="geoId"
             :items="geoList"
             multiple
             placeholder="GEO"
           />
+          <button
+            v-if="geoId.length"
+            class="stats__multiselect-btn"
+            @click="geoId = []"
+          >
+            <svg
+              viewBox="0 0 50 50"
+              xmlns="http://www.w3.org/2000/svg"
+            ><path d="M32.96 25 48.325 9.722c2.235-2.222 2.235-5.555 0-7.778C47.486.834 46.089 0 44.693 0c-1.397 0-2.794.556-3.91 1.667L25.14 17.222 9.777 1.944c-2.235-2.222-5.866-2.222-7.822 0A4.851 4.851 0 0 0 0 5.834C0 7.5.559 8.61 1.676 9.721L17.039 25 1.676 40.278C.838 41.388 0 42.778 0 44.444c0 1.39.559 2.778 1.676 3.89C2.793 49.443 4.19 50 5.586 50c1.397 0 2.794-.556 3.911-1.667L24.86 33.056l15.364 15.277c2.234 2.223 5.865 2.223 7.82 0 2.235-2.222 2.235-5.833 0-7.777L32.962 25Z" /></svg>
+            Reset
+          </button>
         </VCardText>
       </VCard>
     </VCol>
@@ -455,13 +486,24 @@ watch(checkBxs, () => {
       md="2"
     >
       <VCard title="Platform">
-        <VCardText>
+        <VCardText class="stats__multiselect">
           <AppSelect
             v-model="platformId"
             :items="platformsList"
             multiple
             placeholder="Platforms"
           />
+          <button
+            v-if="platformId.length"
+            class="stats__multiselect-btn"
+            @click="platformId = []"
+          >
+            <svg
+              viewBox="0 0 50 50"
+              xmlns="http://www.w3.org/2000/svg"
+            ><path d="M32.96 25 48.325 9.722c2.235-2.222 2.235-5.555 0-7.778C47.486.834 46.089 0 44.693 0c-1.397 0-2.794.556-3.91 1.667L25.14 17.222 9.777 1.944c-2.235-2.222-5.866-2.222-7.822 0A4.851 4.851 0 0 0 0 5.834C0 7.5.559 8.61 1.676 9.721L17.039 25 1.676 40.278C.838 41.388 0 42.778 0 44.444c0 1.39.559 2.778 1.676 3.89C2.793 49.443 4.19 50 5.586 50c1.397 0 2.794-.556 3.911-1.667L24.86 33.056l15.364 15.277c2.234 2.223 5.865 2.223 7.82 0 2.235-2.222 2.235-5.833 0-7.777L32.962 25Z" /></svg>
+            Reset
+          </button>
         </VCardText>
       </VCard>
     </VCol>
@@ -624,6 +666,35 @@ watch(checkBxs, () => {
 
 .table-total-bottom td {
   border-block-start: 3px solid rgba(var(--v-theme-on-surface), 0.5);
+}
+
+.stats__multiselect {
+  position: relative;
+}
+
+.stats__multiselect-btn {
+  position: absolute;
+  border: 1px solid rgb(var(--v-theme-on-surface), var(--v-medium-emphasis-opacity));
+  border-radius: 50%;
+  background: rgb(var(--v-theme-surface));
+  block-size: 20px;
+  font-size: 0;
+  inline-size: 20px;
+  inset-block-start: 0;
+  inset-inline-end: 24px;
+  line-height: 0;
+  transform: translate(50%, -50%);
+
+  &:hover {
+    border-color: rgb(var(--v-theme-primary));
+    background: rgb(var(--v-theme-primary));
+  }
+}
+
+.stats__multiselect-btn svg {
+  block-size: 10px;
+  fill: rgb(var(--v-theme-on-surface), var(--v-medium-emphasis-opacity));
+  inline-size: 10px;
 }
 </style>
 

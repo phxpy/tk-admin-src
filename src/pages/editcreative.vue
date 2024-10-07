@@ -16,7 +16,7 @@ const setFile = async payload => {
   image.value = payload
 }
 
-const addCreative = async () => {
+const editCreative = async () => {
   const data = new FormData()
 
   data.append("title", title.value)
@@ -24,8 +24,8 @@ const addCreative = async () => {
   data.append("icon", image.value)
   data.append("id", route.query.campId)
 
-  await $api(`https://tg-adsnet-api-proxy.goourl.ru/api/campaign/${route.query.campId}/creative/add/`, {
-    method: "POST",
+  await $api(`https://tg-adsnet-api-proxy.goourl.ru/api/campaign/${route.query.campId}/creative/${route.query.creativeId}/edit/`, {
+    method: "PATCH",
     body: data,
   })
 }
@@ -100,7 +100,7 @@ onMounted(async () => {
             color="primary"
             :disabled="!isFormValid"
             block
-            @click="addCreative"
+            @click="editCreative"
           >
             Edit creative
           </VBtn>

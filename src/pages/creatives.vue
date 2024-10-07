@@ -125,7 +125,7 @@ const totalOrder = computed(() => creativesData.value.length)
           <VAvatar size="34">
             <VImg
               v-if="item.icon"
-              :src="item.icon"
+              :src="`https://tg-adsnet-core.goourl.ru${item.icon}`"
             />
           </VAvatar>
 

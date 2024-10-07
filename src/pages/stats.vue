@@ -38,6 +38,14 @@ const platformId = ref([])
 
 const headers = ref([])
 
+const totalHeaders = ref({
+  eventDateTotalHeader: "",
+  campaignTotalHeader: "",
+  creativeTotalHeader: "",
+  geoTotalHeader: "",
+  platformTotalHeader: "", 
+})
+
 // methods
 const updateOptions = options => {
   sortStats(options)
@@ -188,11 +196,6 @@ const getCampaigns = async () => {
 
 const setTableHeaders = () => {
   headers.value = [
-    {
-      title: '',
-      key: 'total_header',
-      sortable: false,
-    },
     ...checkBxs.value.eventDateShown ? [{
       title: 'Date',
       key: 'eventDate',
@@ -251,13 +254,34 @@ const setTableHeaders = () => {
   ]
 }
 
+const setTotalHeaders = () => {
+  for (const key in totalHeaders.value) {
+    totalHeaders.value[key] = ""
+  }
+
+  for (let i = 0; i < Object.keys(checkBxs.value).length; i++) {
+    const item = headers.value[i]
+    
+    if (item.key) {
+      totalHeaders.value[`${item.key}TotalHeader`] = "Total"
+      
+      break
+    }
+  }
+}
+
 onMounted(() => {
   getCampaigns()
   setTableHeaders()
   getStats()
+  setTotalHeaders()
 })
 
 // computed props
+const allNullCheckboxes = computed(() => {
+  return Object.values(checkBxs.value).every(item => !item)
+})
+
 const platformsList = computed(() => {
   const list = []
 
@@ -365,6 +389,7 @@ watch(platformId, () => {
 watch(checkBxs, () => {
   setTableHeaders()
   getStats()
+  setTotalHeaders()
 }, { deep: true })
 </script>
 
@@ -483,7 +508,6 @@ watch(checkBxs, () => {
           class="text-no-wrap"
           @update:options="updateOptions"
         >
-          <template #item.total_header />
           <template
             v-if="checkBxs.eventDateShown"
             #item.eventDate="{ item }"
@@ -545,11 +569,21 @@ watch(checkBxs, () => {
 
           <template #body.append>
             <tr class="table-total-bottom">
-              <td>Total</td>
-              <td v-if="checkBxs.eventDateShown" />
-              <td v-if="checkBxs.campIdShown" />
-              <td v-if="checkBxs.creativeIdShown" />
-              <td v-if="checkBxs.geoIdShown" />
+              <td v-if="checkBxs.eventDateShown">
+                {{ totalHeaders.eventDateTotalHeader }}
+              </td>
+              <td v-if="checkBxs.campIdShown">
+                {{ totalHeaders.campaignTotalHeader }}
+              </td>
+              <td v-if="checkBxs.creativeIdShown">
+                {{ totalHeaders.creativeTotalHeader }}
+              </td>
+              <td v-if="checkBxs.geoIdShown">
+                {{ totalHeaders.geoTotalHeader }}
+              </td>
+              <td v-if="checkBxs.deviceIdShown">
+                {{ totalHeaders.platformTotalHeader }}
+              </td>
               <td>{{ totalData.total_views }}</td>
               <td>{{ totalData.total_hits }}</td>
               <td>{{ parseFloat(totalData.total_ctr).toFixed(2) }}</td>

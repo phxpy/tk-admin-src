@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
@@ -30,14 +30,20 @@ const editCreative = async () => {
   })
 }
 
-onMounted(async () => {
+onBeforeMount(async () => {
   const data = await $api(`https://tg-adsnet-api-proxy.goourl.ru/api/campaign/${route.query.campId}/creative/${route.query.creativeId}`, {
     method: "GET",
   })
 
   title.value = data.title
   description.value = data.description
-  image.value = data.icon
+  
+  const response = await fetch(`https://tg-adsnet-core.goourl.ru${data.icon}`)
+  
+  const blob = await response.blob()
+  const file = new File([blob], `image-${data.created_at}.${data.icon.split(".").at(-1)}`, { type: blob.type })
+
+  image.value = file
 })
 </script>
 
@@ -56,7 +62,9 @@ onMounted(async () => {
 
         <VCardText>
           <DropZone
+            v-if="image"
             v-model="image"
+            :f-data="[image]"
             @drop-file="setFile"
           />
         </VCardText>

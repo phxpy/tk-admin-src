@@ -5,6 +5,13 @@ import {
   useObjectUrl,
 } from '@vueuse/core'
 
+const props = defineProps({
+  fData: {
+    type: Array,
+    default: () => ([]),
+  },
+})
+
 const emit = defineEmits(['dropFile'])
 
 const dropZoneRef = ref()
@@ -25,7 +32,9 @@ function onDrop(DroppedFiles) {
     })
   })
 }
-onChange(selectedFiles => {
+onChange(selectedFiles => handleChange(selectedFiles))
+
+function handleChange(selectedFiles) {
   if (!selectedFiles)
     return
   for (const file of selectedFiles) {
@@ -34,11 +43,14 @@ onChange(selectedFiles => {
       url: useObjectUrl(file).value ?? '',
     })
   }
-
+  
   emit('dropFile', fileData.value[0].file)
+}
 
-  // console.log(fileData.value[0].file)
-})
+if (props.fData.length > 0) {
+  handleChange(props.fData)
+}
+
 useDropZone(dropZoneRef, onDrop)
 </script>
 

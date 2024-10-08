@@ -6,6 +6,8 @@ import { useRoute } from 'vue-router'
 const commonStore = useCommonStore()
 const route = useRoute()
 
+const loadings = ref({})
+
 const headers = [
   {
     title: 'CREATIVE ID',
@@ -56,12 +58,16 @@ const headers = [
 
 const creativesData = ref([])
 
-onMounted(async () => {
+const getCreatives = async () => {
   const data = await $api(`https://tg-adsnet-api-proxy.goourl.ru/api/campaign/${route.query.id}/creative/`, {
     method: 'GET',
   })
   
   creativesData.value = data
+}
+
+onMounted(async () => {
+  getCreatives()
 })
 
 const page = ref(1)
@@ -72,6 +78,22 @@ const creatives = computed(() => {
 })
 
 const totalOrder = computed(() => creativesData.value.length)
+
+const deleteCreative = async id => {
+  loadings.value[id] = true
+
+  try {
+    await $api(`https://tg-adsnet-api-proxy.goourl.ru/api/campaign/${route.query.id}/creative/${id}/delete/`, {
+      method: 'DELETE',
+    })
+    
+    getCreatives()
+  } catch (error) {
+    console.log(error)
+  } finally {
+    loadings.value[id] = false
+  }
+}
 </script>
 
 <template>
@@ -161,19 +183,18 @@ const totalOrder = computed(() => creativesData.value.length)
       </template>
 
       <template #item.actions="{ item }">
-        <IconBtn>
-          <VIcon icon="tabler-play" />
-        </IconBtn>
-
-        <IconBtn>
-          <VIcon icon="tabler-pause" />
-        </IconBtn>
-
-        <IconBtn :to="{ name: 'editcreative', query: { campId: route.query.id, creativeId: item.id } }">
+        <IconBtn
+          :to="{ name: 'editcreative', query: { campId: route.query.id, creativeId: item.id } }"
+          :disabled="loadings[item.id]"
+        >
           <VIcon icon="tabler-edit" />
         </IconBtn>
         
-        <IconBtn>
+        <IconBtn
+          :loading="loadings[item.id]"
+          :disabled="loadings[item.id]"
+          @click="deleteCreative(item.id)"
+        >
           <VIcon icon="tabler-trash" />
         </IconBtn>
       </template>

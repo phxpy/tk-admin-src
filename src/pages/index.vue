@@ -54,6 +54,7 @@ const headers = [
 ]
 
 const loadings = ref({})
+const toggles = ref({})
 
 const sortCampaigns = options => {
   if (!options || !options.sortBy.length) {
@@ -96,12 +97,47 @@ const getCampaigns = async () => {
 const deleteCampaign = async id => {
   loadings.value[id] = true
 
-  await $api(`https://tg-adsnet-api-proxy.goourl.ru/api/campaign/${id}/delete/`, {
-    method: 'DELETE',
-  })
-  
-  getCampaigns()
-  loadings.value[id] = false
+  try {
+    await $api(`https://tg-adsnet-api-proxy.goourl.ru/api/campaign/${id}/delete/`, {
+      method: 'DELETE',
+    })
+    
+    getCampaigns()
+  } catch (error) {
+    console.log(error)
+  } finally {
+    loadings.value[id] = false
+  }
+}
+
+const playCampaign = async id => {
+  try {
+    toggles.value[id] = true
+
+    await $api(`https://tg-adsnet-api-proxy.goourl.ru/api/campaign/${id}/start/`, {
+      method: 'POST',
+    })
+    getCampaigns()
+  } catch (error) {
+    console.log(error)
+  } finally {
+    toggles.value[id] = false
+  }
+}
+
+const stopCampaign = async id => {
+  try {
+    toggles.value[id] = true
+
+    await $api(`https://tg-adsnet-api-proxy.goourl.ru/api/campaign/${id}/stop/`, {
+      method: 'POST',
+    })
+    getCampaigns()
+  } catch (error) {
+    console.log(error)
+  } finally {
+    toggles.value[id] = false
+  }
 }
 
 onMounted(async () => {
@@ -203,31 +239,41 @@ const totalOrder = computed(() => {
 
       <!-- Actions -->
       <template #item.actions="{ item }">
-        <IconBtn :disabled="loadings[item.id]">
+        <IconBtn
+          v-if="item.status.toLowerCase() !== 'started'"
+          :disabled="loadings[item.id] || toggles[item.id] || item.status.toLowerCase() === 'draft' || item.status.toLowerCase() === 'moderating'"
+          :loading="toggles[item.id]"
+          @click="playCampaign(item.id)"
+        >
           <VIcon icon="tabler-play" />
         </IconBtn>
 
-        <IconBtn :disabled="loadings[item.id]">
+        <IconBtn
+          v-if="item.status.toLowerCase() === 'started'"
+          :disabled="loadings[item.id]"
+          :loading="toggles[item.id]"
+          @click="stopCampaign(item.id)"
+        >
           <VIcon icon="tabler-pause" />
         </IconBtn>
 
         <IconBtn
           :to="{ name: 'creatives', query: { id: item.id } }"
-          :disabled="loadings[item.id]"
+          :disabled="loadings[item.id] || toggles[item.id]"
         >
           <VIcon icon="tabler-eye" />
         </IconBtn>
 
         <IconBtn
           :to="{ name: 'editcampaign', query: { id: item.id } }"
-          :disabled="loadings[item.id]"
+          :disabled="loadings[item.id] || toggles[item.id]"
         >
           <VIcon icon="tabler-edit" />
         </IconBtn>
         
         <IconBtn
           :loading="loadings[item.id]"
-          :disabled="loadings[item.id]"
+          :disabled="loadings[item.id] || toggles[item.id]"
           @click="deleteCampaign(item.id)"
         >
           <VIcon icon="tabler-trash" />

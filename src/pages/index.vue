@@ -53,6 +53,8 @@ const headers = [
   },
 ]
 
+const loadings = ref({})
+
 const sortCampaigns = options => {
   if (!options || !options.sortBy.length) {
     sortedCampaigns.value = campaignData.value
@@ -89,6 +91,17 @@ const getCampaigns = async () => {
   
   campaignData.value = data
   sortCampaigns()
+}
+
+const deleteCampaign = async id => {
+  loadings.value[id] = true
+
+  await $api(`https://tg-adsnet-api-proxy.goourl.ru/api/campaign/${id}/delete/`, {
+    method: 'DELETE',
+  })
+  
+  getCampaigns()
+  loadings.value[id] = false
 }
 
 onMounted(async () => {
@@ -190,23 +203,33 @@ const totalOrder = computed(() => {
 
       <!-- Actions -->
       <template #item.actions="{ item }">
-        <IconBtn>
+        <IconBtn :disabled="loadings[item.id]">
           <VIcon icon="tabler-play" />
         </IconBtn>
 
-        <IconBtn>
+        <IconBtn :disabled="loadings[item.id]">
           <VIcon icon="tabler-pause" />
         </IconBtn>
 
-        <IconBtn :to="{ name: 'creatives', query: { id: item.id } }">
+        <IconBtn
+          :to="{ name: 'creatives', query: { id: item.id } }"
+          :disabled="loadings[item.id]"
+        >
           <VIcon icon="tabler-eye" />
         </IconBtn>
 
-        <IconBtn :to="{ name: 'editcampaign', query: { id: item.id } }">
+        <IconBtn
+          :to="{ name: 'editcampaign', query: { id: item.id } }"
+          :disabled="loadings[item.id]"
+        >
           <VIcon icon="tabler-edit" />
         </IconBtn>
         
-        <IconBtn>
+        <IconBtn
+          :loading="loadings[item.id]"
+          :disabled="loadings[item.id]"
+          @click="deleteCampaign(item.id)"
+        >
           <VIcon icon="tabler-trash" />
         </IconBtn>
       </template>

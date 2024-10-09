@@ -273,7 +273,7 @@ const totalOrder = computed(() => {
         
         <IconBtn
           :loading="loadings[item.id]"
-          :disabled="loadings[item.id] || toggles[item.id]"
+          :disabled="loadings[item.id] || toggles[item.id] || item.status.toLowerCase() !== 'draft'"
           @click="deleteCampaign(item.id)"
         >
           <VIcon icon="tabler-trash" />

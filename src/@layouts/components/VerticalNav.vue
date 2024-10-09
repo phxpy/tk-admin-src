@@ -99,30 +99,32 @@ const hideTitleAndIcon = configStore.isVerticalNavMini(isHovered)
         </RouterLink>
         <!-- 👉 Vertical nav actions -->
         <!-- Show toggle collapsible in >md and close button in <md -->
-        <div class="header-action">
+        <!--
+          <div class="header-action">
           <Component
-            :is="layoutConfig.app.iconRenderer || 'div'"
-            v-show="configStore.isVerticalNavCollapsed"
-            class="d-none nav-unpin"
-            :class="configStore.isVerticalNavCollapsed && 'd-lg-block'"
-            v-bind="layoutConfig.icons.verticalNavUnPinned"
-            @click="configStore.isVerticalNavCollapsed = !configStore.isVerticalNavCollapsed"
+          :is="layoutConfig.app.iconRenderer || 'div'"
+          v-show="configStore.isVerticalNavCollapsed"
+          class="d-none nav-unpin"
+          :class="configStore.isVerticalNavCollapsed && 'd-lg-block'"
+          v-bind="layoutConfig.icons.verticalNavUnPinned"
+          @click="configStore.isVerticalNavCollapsed = !configStore.isVerticalNavCollapsed"
           />
           <Component
-            :is="layoutConfig.app.iconRenderer || 'div'"
-            v-show="!configStore.isVerticalNavCollapsed"
-            class="d-none nav-pin"
-            :class="!configStore.isVerticalNavCollapsed && 'd-lg-block'"
-            v-bind="layoutConfig.icons.verticalNavPinned"
-            @click="configStore.isVerticalNavCollapsed = !configStore.isVerticalNavCollapsed"
+          :is="layoutConfig.app.iconRenderer || 'div'"
+          v-show="!configStore.isVerticalNavCollapsed"
+          class="d-none nav-pin"
+          :class="!configStore.isVerticalNavCollapsed && 'd-lg-block'"
+          v-bind="layoutConfig.icons.verticalNavPinned"
+          @click="configStore.isVerticalNavCollapsed = !configStore.isVerticalNavCollapsed"
           />
           <Component
-            :is="layoutConfig.app.iconRenderer || 'div'"
-            class="d-lg-none"
-            v-bind="layoutConfig.icons.close"
-            @click="toggleIsOverlayNavActive(false)"
+          :is="layoutConfig.app.iconRenderer || 'div'"
+          class="d-lg-none"
+          v-bind="layoutConfig.icons.close"
+          @click="toggleIsOverlayNavActive(false)"
           />
-        </div>
+          </div> 
+        -->
       </slot>
     </div>
     <slot name="before-nav-items">

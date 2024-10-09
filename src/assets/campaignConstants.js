@@ -28,6 +28,8 @@ export const useCampaignConstants = defineStore('campaignConstants', {
         this.platforms = platformsResponse
       } catch (error) {
         console.log(error)
+      } finally {
+        console.log('constants initialized')
       }
     },
   },

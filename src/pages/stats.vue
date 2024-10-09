@@ -284,7 +284,9 @@ const platformsList = computed(() => {
   const list = []
 
   for (const prop in campaignConstants.platforms) {
-    list.push(campaignConstants.platforms[prop])
+    if (campaignConstants.platforms[prop] !== "all") {
+      list.push(campaignConstants.platforms[prop])
+    }
   }
 
   return list

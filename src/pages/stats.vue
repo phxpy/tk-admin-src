@@ -34,8 +34,8 @@ const checkBxs = ref({
 
 const campId = ref([])
 const creativeId = ref([])
-const geoId = ref([])
-const platformId = ref([])
+const geoId = ref(["all"])
+const platformId = ref(["all"])
 
 const headers = ref([])
 
@@ -108,6 +108,30 @@ const getStats = async () => {
     query.push(`date_from=${dateFrom.value}`)
   }
 
+  if (campId.value.length) {
+    campId.value.forEach(id => {
+      // const index = query.findIndex(item => item.includes("camp_id"))
+
+      // if (index !== -1) {
+      //   query[index] = `camp_id=${id}`
+      // } else {
+      // }
+      query.push(`camp_id=${id}`)
+    })
+  }
+
+  if (creativeId.value.length) {
+    creativeId.value.forEach(id => {
+      // const index = query.findIndex(item => item.includes("creative_id"))
+
+      // if (index !== -1) {
+      //   query[index] = `creative_id=${id}`
+      // } else {
+      // }
+      query.push(`creative_id=${id}`)
+    })
+  }
+
   const geoAbbrList = []
   if (geoId.value.length) {
     let geoAbbr = ""
@@ -121,7 +145,20 @@ const getStats = async () => {
     }
 
     geoAbbrList.push(geoAbbr)
+    
+    geoAbbrList.forEach(id => {
+      // const index = query.findIndex(item => item.includes("geo"))
+
+      // if (index !== -1) {
+      //   query[index] = `geo=${id}`
+      // } else {
+      // }
+      query.push(`geo=${id}`)
+
+      // fetchData(query)
+    })
   }
+
 
   for (const key in checkBxs.value) {
     if (checkBxs.value[key]) {
@@ -129,51 +166,23 @@ const getStats = async () => {
     }
   }
 
-  if (campId.value.length) {
-    campId.value.forEach(id => {
-      const index = query.findIndex(item => item.includes("camp_id"))
-
-      if (index !== -1) {
-        query[index] = `camp_id=${id}`
-      } else {
-        query.push(`camp_id=${id}`)
-      }
-
-      fetchData(query)
-    })
-  }
-
-  if (creativeId.value.length) {
-    creativeId.value.forEach(id => {
-      const index = query.findIndex(item => item.includes("creative_id"))
-
-      if (index !== -1) {
-        query[index] = `creative_id=${id}`
-      } else {
-        query.push(`creative_id=${id}`)
-      }
-
-      fetchData(query)
-    })
-  }
-
   if (platformId.value.length) {
     platformId.value.forEach(id => {
-      const index = query.findIndex(item => item.includes("platform"))
+      // const index = query.findIndex(item => item.includes("platform"))
 
-      if (index !== -1) {
-        query[index] = `platform=${id}`
-      } else {
-        query.push(`platform=${id}`)
-      }
+      // if (index !== -1) {
+      //   query[index] = `platform=${id}`
+      // } else {
+      // }
+      query.push(`platform=${id}`)
 
-      fetchData(query)
+      // fetchData(query)
     })
   }
 
-  if (!campId.value.length && !creativeId.value.length && !geoAbbrList.length && !platformId.value.length) {
-    fetchData(query)
-  }
+  // if (!campId.value.length && !creativeId.value.length && !geoId.value.length && !platformId.value.length) {
+  // }
+  fetchData(query)
   
   async function fetchData(query) {
     const data = await $api(`https://tg-adsnet-api-proxy.goourl.ru/api/stats/advertiser/${query.length ? `?${query.join('&')}` : ''}`, {
@@ -205,23 +214,23 @@ const setTableHeaders = () => {
     }] : [],
     ...checkBxs.value.campIdShown ? [{
       title: 'Campaign',
-      key: 'campaign',
-      sortable: false,
+      key: 'campId',
+      sortable: true,
     }] : [],
     ...checkBxs.value.creativeIdShown ? [{
       title: 'Creative',
-      key: 'creative',
-      sortable: false,
+      key: 'creativeId',
+      sortable: true,
     }] : [],
     ...checkBxs.value.geoIdShown ? [{
       title: 'GEO',
-      key: 'geo',
-      sortable: false,
+      key: 'geoId',
+      sortable: true,
     }] : [],
     ...checkBxs.value.deviceIdShown ? [{
       title: 'Platform',
-      key: 'platform',
-      sortable: false,
+      key: 'deviceId',
+      sortable: true,
     }] : [],
     {
       title: 'Views',
@@ -354,14 +363,14 @@ const creativeIds = computed(() => {
 })
 
 watch(dateRange, () => {
+  getStats()
   if (dateRange.value) {
-    getStats()
   }
 }, { deep: true })
 
 watch(campId, () => {
+  getStats()
   if (campId.value) {
-    getStats()
   }
   if (!campId.value.length) {
     creativeId.value = []
@@ -369,20 +378,20 @@ watch(campId, () => {
 }, { deep: true })
 
 watch(creativeId, () => {
+  getStats()
   if (creativeId.value) {
-    getStats()
   }
 }, { deep: true })
 
 watch(geoId, () => {
+  getStats()
   if (geoId.value) {
-    getStats()
   }
 }, { deep: true })
 
 watch(platformId, () => {
+  getStats()
   if (platformId.value) {
-    getStats()
   }
 }, { deep: true })
 
@@ -561,30 +570,30 @@ watch(checkBxs, () => {
 
           <template
             v-if="checkBxs.campIdShown"
-            #item.campaign
+            #item.campId="{ item }"
           >
-            {{ campId }}
+            {{ item.campId }}
           </template>
 
           <template
             v-if="checkBxs.creativeIdShown"
-            #item.creative
+            #item.creativeId="{ item }"
           >
-            {{ creativeId }}
+            {{ item.creativeId }}
           </template>
 
           <template
             v-if="checkBxs.geoIdShown"
-            #item.geo
+            #item.geoId="{ item }"
           >
-            {{ geoId }}
+            {{ item.geoId }}
           </template>
 
           <template
             v-if="checkBxs.deviceIdShown"
-            #item.platform
+            #item.deviceId="{ item }"
           >
-            {{ platformId }}
+            {{ item.deviceId }}
           </template>
 
           <template #item.sum_views="{ item }">

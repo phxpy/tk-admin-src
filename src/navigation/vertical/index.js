@@ -9,4 +9,9 @@ export default [
     to: { name: 'stats' },
     icon: { icon: 'tabler-smart-home' },
   },
+  {
+    title: 'Publishers',
+    to: { name: 'publishers' },
+    icon: { icon: 'tabler-smart-home' },
+  },
 ]

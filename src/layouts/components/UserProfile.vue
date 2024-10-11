@@ -1,7 +1,7 @@
 <script setup>
 import { useCookie } from '@/@core/composable/useCookie'
 import user from '@images/avatars/user.png'
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 
 const router = useRouter()
 const ability = useAbility()
@@ -33,6 +33,10 @@ const logout = async () => {
 
   useCookie('username').value = null
 }
+
+watch(useCookie('username').value, () => {
+  username.value = useCookie('username').value
+})
 </script>
 
 <template>

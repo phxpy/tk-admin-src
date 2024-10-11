@@ -14,4 +14,9 @@ export default [
     to: { name: 'publishers' },
     icon: { icon: 'tabler-smart-home' },
   },
+  {
+    title: 'Add Site & Widget',
+    to: { name: 'newsitewidget' },
+    icon: { icon: 'tabler-smart-home' },
+  },
 ]

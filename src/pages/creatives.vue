@@ -63,7 +63,7 @@ const getCreatives = async () => {
     method: 'GET',
   })
   
-  creativesData.value = data
+  creativesData.value = data.toSorted((a, b) => b.id - a.id)
 }
 
 onMounted(async () => {
@@ -135,7 +135,7 @@ const deleteCreative = async id => {
       class="text-no-wrap"
     >
       <template #item.id="{ item }">
-        {{ item.stats.creativeId }}
+        {{ item.id }}
       </template>
 
       <template #item.status="{ item }">

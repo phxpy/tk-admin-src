@@ -49,18 +49,22 @@ const sortSites = options => {
         const bDate = +(new Date(b["created_at"]))
 
         if (options.sortBy.length && options.sortBy[0]["order"] === "asc") {
-          return aDate > bDate
+          return aDate > bDate ? 1 : -1
         } else if (options.sortBy.length && options.sortBy[0]["order"] === "desc") {
-          return aDate < bDate
+          return aDate < bDate ? 1 : -1
         }
+        
+        return 0
       })
     } else {
       sortedSites.value = siteData.value.toSorted((a, b) => {
         if (options.sortBy.length && options.sortBy[0]["order"] === "asc") {
-          return a[options.sortBy[0]["key"]] > b[options.sortBy[0]["key"]]
+          return a[options.sortBy[0]["key"]] > b[options.sortBy[0]["key"]] ? 1 : -1
         } else if (options.sortBy.length && options.sortBy[0]["order"] === "desc") {
-          return a[options.sortBy[0]["key"]] < b[options.sortBy[0]["key"]]
+          return a[options.sortBy[0]["key"]] < b[options.sortBy[0]["key"]] ? 1 : -1
         }
+        
+        return 0
       })
     }
   }
@@ -74,7 +78,7 @@ const getSites = async () => {
   })
   
   siteData.value = data.toSorted((a, b) => {
-    return a.id < b.id
+    return b.id - a.id
   })
   sortSites()
 }

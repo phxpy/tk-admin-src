@@ -36,7 +36,7 @@ const getWidgets = async () => {
     method: 'GET',
   })
   
-  widgetsData.value = data
+  widgetsData.value = data.toSorted((a, b) => b.id - a.id)
 }
 
 onMounted(async () => {

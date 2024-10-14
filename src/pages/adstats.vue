@@ -1,7 +1,7 @@
 <script setup>
 import { useCampaignConstants } from '@/assets/campaignConstants'
 import { isEqual, uniqWith } from 'lodash'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 const campaignConstants = useCampaignConstants()
 
@@ -22,28 +22,27 @@ const stats = ref([])
 const totalData = ref([])
 const sortedStats = ref([])
 
-const siteList = ref([])
-const widgetList = ref([])
+const campaignsList = ref([])
 
 const checkBxs = ref({
   eventDateShown: true,
-  siteIdShown: false,
-  widgetIdShown: false,
+  campIdShown: false,
+  creativeIdShown: false,
   geoIdShown: false,
   deviceIdShown: false,
 })
 
-const siteId = ref([])
-const widgetId = ref([])
-const geoId = ref(["all"])
-const platformId = ref(["all"])
+const campId = ref([])
+const creativeId = ref([])
+const geoId = ref([])
+const platformId = ref([])
 
 const headers = ref([])
 
 const totalHeaders = ref({
   eventDateTotalHeader: "",
-  siteTotalHeader: "",
-  widgetTotalHeader: "",
+  campaignTotalHeader: "",
+  creativeTotalHeader: "",
   geoTotalHeader: "",
   platformTotalHeader: "", 
 })
@@ -109,15 +108,15 @@ const getStats = async () => {
     query.push(`date_from=${dateFrom.value}`)
   }
 
-  if (siteId.value.length) {
-    siteId.value.forEach(id => {
-      query.push(`site_id=${id}`)
+  if (campId.value.length) {
+    campId.value.forEach(id => {
+      query.push(`camp_id=${id}`)
     })
   }
 
-  if (widgetId.value.length) {
-    widgetId.value.forEach(id => {
-      query.push(`widget_id=${id}`)
+  if (creativeId.value.length) {
+    creativeId.value.forEach(id => {
+      query.push(`creative_id=${id}`)
     })
   }
 
@@ -138,8 +137,9 @@ const getStats = async () => {
     geoAbbrList.forEach(id => {
       query.push(`geo=${id}`)
     })
+  } else {
+    query.push("geo=all")
   }
-
 
   for (const key in checkBxs.value) {
     if (checkBxs.value[key]) {
@@ -151,12 +151,14 @@ const getStats = async () => {
     platformId.value.forEach(id => {
       query.push(`platform=${id}`)
     })
+  } else {
+    query.push("platform=all")
   }
   
   fetchData(query)
   
   async function fetchData(query) {
-    const data = await $api(`https://tg-adsnet-api-proxy.goourl.ru/api/stats/publisher/${query.length ? `?${query.join('&')}` : ''}`, {
+    const data = await $api(`https://tg-adsnet-api-proxy.goourl.ru/api/stats/advertiser/${query.length ? `?${query.join('&')}` : ''}`, {
       method: 'GET',
     })
     
@@ -168,20 +170,12 @@ const getStats = async () => {
   }
 }
 
-const getSites = async () => {
-  const data = await $api(`https://tg-adsnet-api-proxy.goourl.ru/api/site/`, {
+const getCampaigns = async () => {
+  const data = await $api(`https://tg-adsnet-api-proxy.goourl.ru/api/campaign/ids/`, {
     method: 'GET',
   })
 
-  siteList.value = data.results
-}
-
-const getWidgets = async () => {
-  const data = await $api(`https://tg-adsnet-api-proxy.goourl.ru/api/widget/`, {
-    method: 'GET',
-  })
-
-  widgetList.value = data.results.map(item => item.id)
+  campaignsList.value = data
 }
 
 const setTableHeaders = () => {
@@ -191,14 +185,14 @@ const setTableHeaders = () => {
       key: 'eventDate',
       sortable: true,
     }] : [],
-    ...checkBxs.value.siteIdShown ? [{
-      title: 'Site',
-      key: 'siteId',
+    ...checkBxs.value.campIdShown ? [{
+      title: 'Campaign',
+      key: 'campId',
       sortable: true,
     }] : [],
-    ...checkBxs.value.widgetIdShown ? [{
-      title: 'Widget',
-      key: 'widgetId',
+    ...checkBxs.value.creativeIdShown ? [{
+      title: 'Creative',
+      key: 'creativeId',
       sortable: true,
     }] : [],
     ...checkBxs.value.geoIdShown ? [{
@@ -237,8 +231,8 @@ const setTableHeaders = () => {
       sortable: true,
     },
     {
-      title: 'Pub',
-      key: 'sum_pub',
+      title: 'Advert',
+      key: 'sum_advert',
       sortable: true,
     },
   ]
@@ -261,8 +255,7 @@ const setTotalHeaders = () => {
 }
 
 onMounted(() => {
-  getSites()
-  getWidgets()
+  getCampaigns()
   setTableHeaders()
   getStats()
   setTotalHeaders()
@@ -319,8 +312,27 @@ const dateFrom = computed(() => {
   }
 })
 
-const siteIds = computed(() => {
-  return siteList.value.map(item => item.id)
+const campaignsIds = computed(() => {
+  return campaignsList.value.map(item => item.id)
+})
+
+const creativeIds = computed(() => {
+  if (!campId.value.length) {
+    return []
+  } else {
+    let creatives = []
+    const campaigns = []
+
+    campId.value.forEach(id => {
+      campaigns.push(campaignsList.value.find(item => item.id === id))
+    })
+
+    campaigns.forEach(item => {
+      creatives.push(...item.creatives)
+    })
+    
+    return creatives
+  }
 })
 
 watch(dateRange, () => {
@@ -329,18 +341,18 @@ watch(dateRange, () => {
   }
 }, { deep: true })
 
-watch(siteId, () => {
+watch(campId, () => {
   getStats()
-  if (siteId.value) {
+  if (campId.value) {
   }
-  if (!siteId.value.length) {
-    widgetId.value = []
+  if (!campId.value.length) {
+    creativeId.value = []
   }
 }, { deep: true })
 
-watch(widgetId, () => {
+watch(creativeId, () => {
   getStats()
-  if (widgetId.value) {
+  if (creativeId.value) {
   }
 }, { deep: true })
 
@@ -379,18 +391,18 @@ watch(checkBxs, () => {
       cols="2"
       md="2"
     >
-      <VCard title="Site">
+      <VCard title="Campaign">
         <VCardText class="stats__multiselect">
           <AppSelect
-            v-model="siteId"
-            :items="siteIds"
+            v-model="campId"
+            :items="campaignsIds"
             multiple
-            placeholder="Site"
+            placeholder="Campaigns"
           />
           <button
-            v-if="siteId.length"
+            v-if="campId.length"
             class="stats__multiselect-btn"
-            @click="siteId = []"
+            @click="campId = []"
           >
             <svg
               viewBox="0 0 50 50"
@@ -405,18 +417,18 @@ watch(checkBxs, () => {
       cols="2"
       md="2"
     >
-      <VCard title="Widget">
+      <VCard title="Creative">
         <VCardText class="stats__multiselect">
           <AppSelect
-            v-model="widgetId"
-            :items="widgetList"
+            v-model="creativeId"
+            :items="creativeIds"
             multiple
-            placeholder="Widget"
+            placeholder="Creatives"
           />
           <button
-            v-if="widgetId.length"
+            v-if="creativeId.length"
             class="stats__multiselect-btn"
-            @click="widgetId = []"
+            @click="creativeId = []"
           >
             <svg
               viewBox="0 0 50 50"
@@ -489,12 +501,12 @@ watch(checkBxs, () => {
             label="Date"
           />
           <VCheckbox
-            v-model="checkBxs.siteIdShown"
-            label="Site"
+            v-model="checkBxs.campIdShown"
+            label="Campaign"
           />
           <VCheckbox
-            v-model="checkBxs.widgetIdShown"
-            label="Widget"
+            v-model="checkBxs.creativeIdShown"
+            label="Creative"
           />
           <VCheckbox
             v-model="checkBxs.geoIdShown"
@@ -530,17 +542,17 @@ watch(checkBxs, () => {
           </template>
 
           <template
-            v-if="checkBxs.siteIdShown"
-            #item.siteId="{ item }"
+            v-if="checkBxs.campIdShown"
+            #item.campId="{ item }"
           >
-            {{ item.siteId }}
+            {{ item.campId }}
           </template>
 
           <template
-            v-if="checkBxs.widgetIdShown"
-            #item.widgetId="{ item }"
+            v-if="checkBxs.creativeIdShown"
+            #item.creativeId="{ item }"
           >
-            {{ item.widgetId }}
+            {{ item.creativeId }}
           </template>
 
           <template
@@ -577,8 +589,8 @@ watch(checkBxs, () => {
             {{ item.cpc }}
           </template>
 
-          <template #item.sum_pub="{ item }">
-            {{ item.sum_pub }}
+          <template #item.sum_advert="{ item }">
+            {{ item.sum_advert }}
           </template>
 
           <template #body.append>
@@ -586,11 +598,11 @@ watch(checkBxs, () => {
               <td v-if="checkBxs.eventDateShown">
                 {{ totalHeaders.eventDateTotalHeader }}
               </td>
-              <td v-if="checkBxs.siteIdShown">
+              <td v-if="checkBxs.campIdShown">
                 {{ totalHeaders.campaignTotalHeader }}
               </td>
-              <td v-if="checkBxs.widgetIdShown">
-                {{ totalHeaders.widgetTotalHeader }}
+              <td v-if="checkBxs.creativeIdShown">
+                {{ totalHeaders.creativeTotalHeader }}
               </td>
               <td v-if="checkBxs.geoIdShown">
                 {{ totalHeaders.geoTotalHeader }}
@@ -603,7 +615,7 @@ watch(checkBxs, () => {
               <td>{{ parseFloat(totalData.total_ctr).toFixed(2) }}</td>
               <td>{{ totalData.total_actions }}</td>
               <td>{{ parseFloat(totalData.total_cpc).toFixed(2) }}</td>
-              <td>{{ parseFloat(totalData.total_pub).toFixed(2) }}</td>
+              <td>{{ parseFloat(totalData.total_advert).toFixed(2) }}</td>
             </tr>
           </template>
 

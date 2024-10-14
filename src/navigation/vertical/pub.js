@@ -7,7 +7,7 @@ export default [
   },
   {
     title: 'Statistics',
-    to: { name: 'publishers' },
+    to: { name: 'pubstats' },
     icon: { icon: 'tabler-smart-home' },
   },
 ]

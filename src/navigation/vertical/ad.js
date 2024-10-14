@@ -7,7 +7,7 @@ export default [
   },
   {
     title: 'Statistics',
-    to: { name: 'stats' },
+    to: { name: 'adstats' },
     icon: { icon: 'tabler-smart-home' },
   },
 ]

@@ -3,7 +3,9 @@ import { useCampaignConstants } from "@/assets/campaignConstants"
 import DemoSelectBasic from "@/components/DemoSelectBasic.vue"
 import DemoSelectChips from "@/components/DemoSelectChips.vue"
 import { onMounted } from "vue"
+import { useRouter } from "vue-router"
 
+const router = useRouter()
 const campaignConstants = useCampaignConstants()
 
 const taskTypesObj = ref({})
@@ -18,7 +20,7 @@ const targetLink = ref("")
 const taskTypes = ref([])
 const selectedTaskType = ref("")
 
-const loadings = ref([])
+const loading = ref(false)
 
 onMounted(async () => {
   const data = await $api("https://tg-adsnet-api-proxy.goourl.ru/api/campaign/tasks/", {
@@ -73,6 +75,8 @@ const createCampaing = async () => {
   }
 
   try {
+    loading.value = true
+
     const res = await $api('https://tg-adsnet-api-proxy.goourl.ru/api/campaign/add/', {
       method: 'POST',
       body: {
@@ -100,6 +104,8 @@ const createCampaing = async () => {
     router.push({ path: '/creatives', query: { id: res.created.id } })
   } catch (err) {
     console.error(err)
+  } finally {
+    loading.value = false
   }
 }
 </script>
@@ -301,9 +307,9 @@ const createCampaing = async () => {
       <VCard class="campaing-btn-card">
         <VCardText>
           <VBtn
-            :loading="loadings[0]"
+            :loading="loading"
             color="primary"
-            :disabled="!isFormValid"
+            :disabled="!isFormValid || loading"
             block
             @click="createCampaing"
           >

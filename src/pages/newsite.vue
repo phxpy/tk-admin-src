@@ -1,32 +1,40 @@
 <script setup>
-const platformTitle = ref("")
-const platformDesc = ref("")
-const platformLink = ref("")
-const subjectsList = ref([])
-const widgetTitle = ref("")
+import { useRouter } from "vue-router"
 
-const loadings = ref([])
+const router = useRouter()
+
+const siteTitle = ref("")
+const siteDesc = ref("")
+const siteLink = ref("")
+const subjectsList = ref([])
+
+const loading = ref(false)
 
 const isFormValid = computed(() => {
   return (
-    platformTitle.value &&
-    platformDesc.value &&
-    platformLink.value
+    siteTitle.value &&
+    siteDesc.value &&
+    siteLink.value
   )
 })
 
 const createSite = async () => {
+  loading.value = true
   try {
     const res = await $api('https://tg-adsnet-api-proxy.goourl.ru/api/site/add/', {
       method: 'POST',
       body: {
-        "name": platformTitle.value,
-        "description": platformDesc.value,
-        "target_url": platformLink.value,
+        "name": siteTitle.value,
+        "description": siteDesc.value,
+        "target_url": siteLink.value,
       },
     })
+
+    router.push({ path: '/widgets', query: { id: res.created.id } })
   } catch (err) {
     console.error(err)
+  } finally {
+    loading.value = false
   }
 }
 </script>
@@ -39,11 +47,11 @@ const createSite = async () => {
     >
       <VCard
         class="mb-6"
-        title="Platform"
+        title="New site"
       >
         <VCardText>
           <AppTextField
-            v-model="platformTitle"
+            v-model="siteTitle"
             label="Name"
             placeholder="Name"
             :rules="[requiredValidator]"
@@ -51,7 +59,7 @@ const createSite = async () => {
         </VCardText>
         <VCardText>
           <AppTextField
-            v-model="platformDesc"
+            v-model="siteDesc"
             label="Description"
             placeholder="Description"
             :rules="[requiredValidator]"
@@ -59,7 +67,7 @@ const createSite = async () => {
         </VCardText>
         <VCardText>
           <AppTextField
-            v-model="platformLink"
+            v-model="siteLink"
             label="Link"
             placeholder="Link"
             :rules="[requiredValidator, urlValidator]"
@@ -73,18 +81,6 @@ const createSite = async () => {
           />
         </VCardText>
       </VCard>
-      <VCard
-        class="mb-6"
-        title="Widget"
-      >
-        <VCardText>
-          <AppTextField
-            v-model="widgetTitle"
-            label="Widget name"
-            placeholder="Widget name"
-          />
-        </VCardText>
-      </VCard>
     </VCol>
 
     <VCol
@@ -94,9 +90,9 @@ const createSite = async () => {
       <VCard class="campaing-btn-card">
         <VCardText>
           <VBtn
-            :loading="loadings[0]"
+            :loading="loading"
             color="primary"
-            :disabled="!isFormValid"
+            :disabled="!isFormValid || loading"
             block
             @click="createSite"
           >

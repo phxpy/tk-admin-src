@@ -6,7 +6,7 @@ export default [
     icon: { icon: 'tabler-smart-home' },
   },
   {
-    title: 'Stats',
+    title: 'Statistics',
     to: { name: 'stats' },
     icon: { icon: 'tabler-smart-home' },
   },

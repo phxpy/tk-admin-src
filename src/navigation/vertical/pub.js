@@ -1,13 +1,13 @@
 export default [
   { heading: 'Publisher' },
   {
-    title: 'Publishers',
-    to: { name: 'publishers' },
+    title: 'Sites',
+    to: { name: 'sites' },
     icon: { icon: 'tabler-smart-home' },
   },
   {
-    title: 'Add Site & Widget',
-    to: { name: 'newsitewidget' },
+    title: 'Statistics',
+    to: { name: 'publishers' },
     icon: { icon: 'tabler-smart-home' },
   },
 ]

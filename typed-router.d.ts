@@ -21,14 +21,17 @@ declare module 'vue-router/auto-routes' {
     'root': RouteRecordInfo<'root', '/', Record<never, never>, Record<never, never>>,
     '$error': RouteRecordInfo<'$error', '/:error(.*)', { error: ParamValue<true> }, { error: ParamValue<false> }>,
     'addcreative': RouteRecordInfo<'addcreative', '/addcreative', Record<never, never>, Record<never, never>>,
+    'addwidget': RouteRecordInfo<'addwidget', '/addwidget', Record<never, never>, Record<never, never>>,
     'creatives': RouteRecordInfo<'creatives', '/creatives', Record<never, never>, Record<never, never>>,
     'editcampaign': RouteRecordInfo<'editcampaign', '/editcampaign', Record<never, never>, Record<never, never>>,
     'editcreative': RouteRecordInfo<'editcreative', '/editcreative', Record<never, never>, Record<never, never>>,
     'login': RouteRecordInfo<'login', '/login', Record<never, never>, Record<never, never>>,
     'newcampaign': RouteRecordInfo<'newcampaign', '/newcampaign', Record<never, never>, Record<never, never>>,
-    'newsitewidget': RouteRecordInfo<'newsitewidget', '/newsitewidget', Record<never, never>, Record<never, never>>,
+    'newsite': RouteRecordInfo<'newsite', '/newsite', Record<never, never>, Record<never, never>>,
     'publishers': RouteRecordInfo<'publishers', '/publishers', Record<never, never>, Record<never, never>>,
     'reg': RouteRecordInfo<'reg', '/reg', Record<never, never>, Record<never, never>>,
+    'sites': RouteRecordInfo<'sites', '/sites', Record<never, never>, Record<never, never>>,
     'stats': RouteRecordInfo<'stats', '/stats', Record<never, never>, Record<never, never>>,
+    'widgets': RouteRecordInfo<'widgets', '/widgets', Record<never, never>, Record<never, never>>,
   }
 }

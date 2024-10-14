@@ -77,7 +77,7 @@ const createSite = async () => {
             block
             @click="createSite"
           >
-            Create Platform
+            Create Widget
           </VBtn>
         </VCardText>
       </VCard>

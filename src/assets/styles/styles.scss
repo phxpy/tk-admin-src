@@ -3,3 +3,7 @@
 .v-btn--disabled {
   opacity: 0.3 !important;
 }
+
+.v-menu > .v-overlay__content.v-fixed-width-menu {
+  inline-size: 400px !important;
+}

@@ -73,7 +73,9 @@ const getSites = async () => {
     method: 'GET',
   })
   
-  siteData.value = data
+  siteData.value = data.toSorted((a, b) => {
+    return a.id < b.id
+  })
   sortSites()
 }
 

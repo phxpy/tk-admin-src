@@ -278,7 +278,9 @@ const geoList = computed(() => {
   const list = []
 
   for (const prop in campaignConstants.countries) {
-    list.push(campaignConstants.countries[prop])
+    if (campaignConstants.countries[prop] !== "all") {
+      list.push(campaignConstants.countries[prop])
+    }
   }
 
   return list
@@ -450,6 +452,7 @@ watch(checkBxs, () => {
             :items="geoList"
             multiple
             placeholder="GEO"
+            fixed
           />
           <button
             v-if="geoId.length"

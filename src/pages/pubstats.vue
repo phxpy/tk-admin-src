@@ -443,6 +443,7 @@ watch(checkBxs, () => {
             :items="geoList"
             multiple
             placeholder="GEO"
+            fixed
           />
           <button
             v-if="geoId.length"

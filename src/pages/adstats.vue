@@ -56,39 +56,31 @@ const sortStats = options => {
   if (!options || !options.sortBy.length) {
     sortedStats.value = stats.value
   } else {
-    if (options.sortBy[0].key === "date") {
+    if (options.sortBy[0].key === "eventDate") {
       sortedStats.value = stats.value.toSorted((a, b) => {
-        const aDate = +(new Date(a["created_at"]))
-        const bDate = +(new Date(b["created_at"]))
+        const aDate = +(new Date(a["eventDate"]))
+        const bDate = +(new Date(b["eventDate"]))
 
         if (options.sortBy.length && options.sortBy[0]["order"] === "asc") {
-          return aDate > bDate
+          return aDate > bDate ? 1 : -1
         } else if (options.sortBy.length && options.sortBy[0]["order"] === "desc") {
-          return aDate < bDate
+          return aDate < bDate ? 1 : -1
         }
+
+        return 0
       })
-    } else if (
-      options.sortBy[0].key === "ctr" ||
-      options.sortBy[0].key === "cpc" ||
-      options.sortBy[0].key === "sum_advert"
-    ) {
+    } else {
       sortedStats.value = stats.value.toSorted((a, b) => {
         const aFloat = parseFloat(a[options.sortBy[0]["key"]])
         const bFloat = parseFloat(b[options.sortBy[0]["key"]])
 
         if (options.sortBy.length && options.sortBy[0]["order"] === "asc") {
-          return aFloat > bFloat
+          return aFloat > bFloat ? 1 : -1
         } else if (options.sortBy.length && options.sortBy[0]["order"] === "desc") {
-          return aFloat < bFloat
+          return aFloat < bFloat ? 1 : -1
         }
-      })
-    } else {
-      sortedStats.value = stats.value.toSorted((a, b) => {
-        if (options.sortBy.length && options.sortBy[0]["order"] === "asc") {
-          return a[options.sortBy[0]["key"]] > b[options.sortBy[0]["key"]]
-        } else if (options.sortBy.length && options.sortBy[0]["order"] === "desc") {
-          return a[options.sortBy[0]["key"]] < b[options.sortBy[0]["key"]]
-        }
+
+        return 0
       })
     }
   }

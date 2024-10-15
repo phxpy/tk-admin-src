@@ -27,6 +27,7 @@ declare module 'vue-router/auto-routes' {
     'editcampaign': RouteRecordInfo<'editcampaign', '/editcampaign', Record<never, never>, Record<never, never>>,
     'editcreative': RouteRecordInfo<'editcreative', '/editcreative', Record<never, never>, Record<never, never>>,
     'login': RouteRecordInfo<'login', '/login', Record<never, never>, Record<never, never>>,
+    'loginbk': RouteRecordInfo<'loginbk', '/loginbk', Record<never, never>, Record<never, never>>,
     'newcampaign': RouteRecordInfo<'newcampaign', '/newcampaign', Record<never, never>, Record<never, never>>,
     'newsite': RouteRecordInfo<'newsite', '/newsite', Record<never, never>, Record<never, never>>,
     'pubstats': RouteRecordInfo<'pubstats', '/pubstats', Record<never, never>, Record<never, never>>,

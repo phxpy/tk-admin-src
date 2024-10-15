@@ -1,15 +1,53 @@
 <script setup>
+import { useCommonStore } from '@/assets/global'
 import { VNodeRenderer } from '@layouts/components/VNodeRenderer'
 import { themeConfig } from '@themeConfig'
 
-const form = ref({
+definePage({
+  meta: {
+    unauthenticatedOnly: true,
+  },
+})
+
+const commonStore = useCommonStore()
+const router = useRouter()
+
+const credentials = ref({
   username: '',
   email: '',
   password: '',
-  privacyPolicies: false,
+})
+
+const errors = ref({
+  username: '',
+  email: '',
+  password: '',
 })
 
 const isPasswordVisible = ref(false)
+
+const onSubmit = async () => {
+  try {
+    const res = await $api('https://tg-adsnet-api-proxy.goourl.ru/api/auth/register/', {
+      method: 'POST',
+      body: {
+        username: credentials.value.username,
+        email: credentials.value.email,
+        password: credentials.value.password,
+      },
+      onResponseError({ response }) {
+        errors.value = response._data.errors
+      },
+    })
+
+    if (res?.status === "success") {
+      commonStore.setLoginMsg("User successfully registered")
+      router.push('/login')
+    }
+  } catch (err) {
+    console.error(err)
+  }
+}
 </script>
 
 <template>
@@ -35,71 +73,60 @@ const isPasswordVisible = ref(false)
         </VCardItem>
 
         <VCardText>
-          <h4 class="text-h4 mb-1">
-            Adventure starts here 🚀
-          </h4>
-          <p class="mb-0">
-            Make your app management easy and fun!
-          </p>
-        </VCardText>
-
-        <VCardText>
-          <VForm @submit.prevent="() => {}">
+          <VForm @submit.prevent="onSubmit">
             <VRow>
               <!-- Username -->
               <VCol cols="12">
                 <AppTextField
-                  v-model="form.username"
+                  v-model="credentials.username"
                   autofocus
                   label="Username"
-                  placeholder="Johndoe"
+                  placeholder="Username"
+                  :error-messages="errors.username"
                 />
               </VCol>
               <!-- email -->
               <VCol cols="12">
                 <AppTextField
-                  v-model="form.email"
+                  v-model="credentials.email"
                   label="Email"
                   type="email"
-                  placeholder="johndoe@email.com"
+                  placeholder="Email"
+                  :error-messages="errors.email"
                 />
               </VCol>
 
               <!-- password -->
               <VCol cols="12">
                 <AppTextField
-                  v-model="form.password"
+                  v-model="credentials.password"
                   label="Password"
-                  placeholder="············"
+                  placeholder="Password"
                   :type="isPasswordVisible ? 'text' : 'password'"
                   :append-inner-icon="isPasswordVisible ? 'tabler-eye-off' : 'tabler-eye'"
+                  :error-messages="errors.password"
                   @click:append-inner="isPasswordVisible = !isPasswordVisible"
                 />
-
-                <div class="d-flex align-center my-6">
-                  <VCheckbox
-                    id="privacy-policy"
-                    v-model="form.privacyPolicies"
-                    inline
-                  />
-                  <VLabel
-                    for="privacy-policy"
-                    style="opacity: 1;"
-                  >
-                    <span class="me-1 text-high-emphasis">I agree to</span>
-                    <a
-                      href="javascript:void(0)"
-                      class="text-primary"
-                    >privacy policy & terms</a>
-                  </VLabel>
-                </div>
 
                 <VBtn
                   block
                   type="submit"
+                  class="mt-8"
                 >
                   Sign up
                 </VBtn>
+              </VCol>
+              <VCol
+                cols="12"
+                class="text-center text-base"
+              >
+                <span class="d-inline-block">Already have an account?</span>
+                <RouterLink
+                  class="text-primary ms-1 d-inline-block"
+                  to="login"
+                >
+                  Sign in instead
+                </RouterLink>
               </VCol>
             </VRow>
           </VForm>

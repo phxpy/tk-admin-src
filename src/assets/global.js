@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 export const useCommonStore = defineStore('common', {
   state: () => ({
     username: "",
+    loginMsg: "",
     timeFormatter: new Intl.DateTimeFormat('ru-RU', {
       hour: 'numeric',
       minute: 'numeric',
@@ -16,6 +17,9 @@ export const useCommonStore = defineStore('common', {
   actions: {
     setUsername(name) {
       this.username = name
+    },
+    setLoginMsg(msg) {
+      this.loginMsg = msg
     },
   },
   getters: {

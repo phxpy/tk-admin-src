@@ -1,16 +1,12 @@
 <script setup>
 import { useCookie } from '@/@core/composable/useCookie'
+import { useCommonStore } from '@/assets/global'
 import user from '@images/avatars/user.png'
-import { onMounted, ref, watch } from 'vue'
 
+const commonStore = useCommonStore()
 const router = useRouter()
 const ability = useAbility()
-let username = ref('')
 const userData = useCookie('userData')
-
-onMounted(() => {
-  username.value = useCookie('username').value
-})
 
 const logout = async () => {
 
@@ -32,11 +28,9 @@ const logout = async () => {
   ability.update([])
 
   useCookie('username').value = null
-}
 
-watch(useCookie('username').value, () => {
-  username.value = useCookie('username').value
-})
+  commonStore.setUsername("")
+}
 </script>
 
 <template>
@@ -59,7 +53,7 @@ watch(useCookie('username').value, () => {
         <!-- 👉 User Avatar & Name -->
         <VListItem>
           <VListItemTitle class="font-weight-semibold">
-            {{ username }}
+            {{ commonStore.username }}
           </VListItemTitle>
         </VListItem>
 

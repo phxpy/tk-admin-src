@@ -1,8 +1,11 @@
 <!-- ❗Errors in the form are set on line 60 -->
 <script setup>
+import { useCommonStore } from '@/assets/global'
 import { VNodeRenderer } from '@layouts/components/VNodeRenderer'
 import { themeConfig } from '@themeConfig'
 import { VForm } from 'vuetify/components/VForm'
+
+const commonStore = useCommonStore()
 
 definePage({
   meta: {
@@ -50,6 +53,7 @@ const login = async () => {
     useCookie('accessToken').value = access
     useCookie('refreshToken').value = refresh
     useCookie('username').value = credentials.value.username
+    commonStore.setUsername(credentials.value.username)
     await nextTick(() => {
       router.replace(route.query.to ? String(route.query.to) : '/')
     })

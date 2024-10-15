@@ -1,4 +1,5 @@
 <script setup>
+import { useCommonStore } from '@/assets/global'
 import { VerticalNav } from '@layouts/components'
 import { useLayoutConfigStore } from '@layouts/stores/config'
 
@@ -19,6 +20,7 @@ const configStore = useLayoutConfigStore()
 const isOverlayNavActive = ref(false)
 const isLayoutOverlayVisible = ref(false)
 const toggleIsOverlayNavActive = useToggle(isOverlayNavActive)
+const commonStore = useCommonStore()
 
 // ℹ️ This is alternative to below two commented watcher
 
@@ -62,6 +64,7 @@ const verticalNavAttrs = computed(() => {
       class="vertical-nav-wrapper"
     >
       <VerticalNav
+        v-if="commonStore.isLoggedIn"
         :is-overlay-nav-active="isOverlayNavActive"
         :toggle-is-overlay-nav-active="toggleIsOverlayNavActive"
         :nav-items="props.navItems"
@@ -75,7 +78,10 @@ const verticalNavAttrs = computed(() => {
         </template>
       </VerticalNav>
     </component>
-    <div class="layout-content-wrapper">
+    <div
+      class="layout-content-wrapper"
+      :class="{ 'zeroPadding': !commonStore.isLoggedIn }"
+    >
       <header
         class="layout-navbar"
         :class="[{ 'navbar-blur': configStore.isNavbarBlurEnabled }]"

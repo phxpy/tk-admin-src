@@ -23,6 +23,6 @@ export const useCommonStore = defineStore('common', {
     },
   },
   getters: {
-    isLoggedIn: state => state.username !== "",
+    isLoggedIn: state => !!state.username,
   },
 })

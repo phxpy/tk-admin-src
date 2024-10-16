@@ -24,9 +24,19 @@ const errors = ref({
   password: '',
 })
 
+const loading = ref(false)
 const isPasswordVisible = ref(false)
 
+const isFormValid = computed(() => {
+  return (
+    credentials.value.username &&
+    credentials.value.email &&
+    credentials.value.password
+  )
+})
+
 const onSubmit = async () => {
+  loading.value = true
   try {
     const res = await $api('https://tg-adsnet-api-proxy.goourl.ru/api/auth/register/', {
       method: 'POST',
@@ -46,6 +56,8 @@ const onSubmit = async () => {
     }
   } catch (err) {
     console.error(err)
+  } finally {
+    loading.value = false
   }
 }
 </script>
@@ -112,6 +124,8 @@ const onSubmit = async () => {
                   block
                   type="submit"
                   class="mt-8"
+                  :loading="loading"
+                  :disabled="!isFormValid || loading"
                 >
                   Sign up
                 </VBtn>

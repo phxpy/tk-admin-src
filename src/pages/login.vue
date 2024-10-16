@@ -17,6 +17,8 @@ const router = useRouter()
 const ability = useAbility()
 const commonStore = useCommonStore()
 
+const loading = ref(false)
+
 const errors = ref({
   username: undefined,
   password: undefined,
@@ -32,7 +34,15 @@ const credentials = ref({
 
 const rememberMe = ref(false)
 
+const isFormValid = computed(() => {
+  return (
+    credentials.value.username &&
+    credentials.value.password
+  )
+})
+
 const login = async () => {
+  loading.value = true
   try {
     const res = await $api('https://tg-adsnet-api-proxy.goourl.ru/api/auth/token/', {
       method: 'POST',
@@ -41,28 +51,38 @@ const login = async () => {
         password: credentials.value.password,
       },
       onResponseError({ response }) {
-
         errors.value = response._data.errors ? response._data.errors : {}
         errors.value.detail = response._data.detail ? response._data.detail : ''
       },
     })
 
-    const { access, refresh } = res
-
-    const abilityRules = access ? [{ "action": "manage", "subject": "all" }] : ""
-
-    useCookie('userAbilityRules').value = abilityRules
-    ability.update(abilityRules)
-    useCookie('accessToken').value = access
-    useCookie('refreshToken').value = refresh
-    useCookie('username').value = credentials.value.username
-    commonStore.setUsername(credentials.value.username)
-    await nextTick(() => {
-      commonStore.setLoginMsg("")
-      router.replace(route.query.to ? String(route.query.to) : '/')
-    })
+    if (!res.detail) {
+      const { access, refresh } = res
+  
+      const abilityRules = access ? [{ "action": "manage", "subject": "all" }] : ""
+  
+      useCookie('userAbilityRules').value = abilityRules
+      ability.update(abilityRules)
+      useCookie('accessToken').value = access
+      useCookie('refreshToken').value = refresh
+      useCookie('username').value = credentials.value.username
+      commonStore.setUsername(credentials.value.username)
+      await nextTick(() => {
+        commonStore.setLoginMsg("")
+        router.replace(route.query.to ? String(route.query.to) : '/')
+      })
+    } else {
+      useCookie('accessToken').value = null
+      userData.value = null
+      useCookie('userAbilityRules').value = null
+      ability.update([])
+      useCookie('username').value = null
+      commonStore.setUsername("")
+    }
   } catch (err) {
     console.error(err)
+  } finally {
+    loading.value = false
   }
 }
 
@@ -135,7 +155,6 @@ const onSubmit = () => {
                       placeholder="Username"
                       type="text"
                       autofocus
-                      :rules="[requiredValidator]"
                       :error-messages="errors.username"
                     />
                   </VCol>
@@ -157,6 +176,8 @@ const onSubmit = () => {
                       block
                       type="submit"
                       class="mt-8"
+                      :loading="loading"
+                      :disabled="!isFormValid || loading"
                     >
                       Login
                     </VBtn>

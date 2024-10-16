@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 
 export const useCommonStore = defineStore('common', {
   state: () => ({
-    username: "",
+    username: "" || useCookie('username').value,
     loginMsg: "",
     timeFormatter: new Intl.DateTimeFormat('ru-RU', {
       hour: 'numeric',

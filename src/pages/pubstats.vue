@@ -1,7 +1,7 @@
 <script setup>
 import { useCampaignConstants } from '@/assets/campaignConstants'
 import { isEqual, uniqWith } from 'lodash'
-import { computed, ref } from 'vue'
+import { computed, onBeforeMount, ref, watch } from 'vue'
 
 const campaignConstants = useCampaignConstants()
 
@@ -17,7 +17,7 @@ const todayDate = today.toISOString().split('T')[0]
 // component's data
 const page = ref(1)
 const itemsPerPage = ref(10)
-const dateRange = ref(`${lastWeekDate} to ${todayDate}`)
+const dateRange = ref("")
 const stats = ref([])
 const totalData = ref([])
 const sortedStats = ref([])
@@ -26,7 +26,7 @@ const siteList = ref([])
 const widgetList = ref([])
 
 const checkBxs = ref({
-  eventDateShown: true,
+  eventDateShown: false,
   siteIdShown: false,
   widgetIdShown: false,
   geoIdShown: false,
@@ -42,10 +42,10 @@ const headers = ref([])
 
 const totalHeaders = ref({
   eventDateTotalHeader: "",
-  siteTotalHeader: "",
-  widgetTotalHeader: "",
-  geoTotalHeader: "",
-  platformTotalHeader: "", 
+  siteIdTotalHeader: "",
+  widgetIdTotalHeader: "",
+  geoIdTotalHeader: "",
+  deviceIdTotalHeader: "", 
 })
 
 // methods
@@ -147,6 +147,11 @@ const getStats = async () => {
   } else {
     query.push("platform=all")
   }
+
+  const url = new URL(window.location)
+
+  url.href = `${url.origin}${url.pathname}?${query.join('&')}`
+  window.history.pushState({}, '', url)
   
   fetchData(query)
   
@@ -255,12 +260,60 @@ const setTotalHeaders = () => {
   }
 }
 
-onMounted(() => {
+onBeforeMount(() => {
   getSites()
   getWidgets()
   setTableHeaders()
-  getStats()
   setTotalHeaders()
+
+  const queryString = window.location.search
+  const urlParams = new URLSearchParams(queryString)
+
+  if (urlParams.has('date_from') && !urlParams.has('date_to')) {
+    dateRange.value = urlParams.get('date_from')
+  } else if (urlParams.has('date_to') && !urlParams.has('date_from')) {
+    dateRange.value = urlParams.get('date_to')
+  } else if (urlParams.has('date_from') && urlParams.has('date_to')) {
+    dateRange.value = `${urlParams.get('date_from')} to ${urlParams.get('date_to')}`
+  } else {
+    dateRange.value = `${lastWeekDate} to ${todayDate}`
+  }
+
+  if (urlParams.has('group_by')) {
+    const grouping = urlParams.getAll('group_by')
+
+    grouping.forEach(item => {
+      checkBxs.value[`${item}Shown`] = true
+    })
+  } else {
+    checkBxs.value.eventDateShown = true
+  }
+
+  if (urlParams.has('site_id')) {
+    siteId.value = urlParams.getAll('site_id')
+  }
+
+  if (urlParams.has('widget_id')) {
+    widgetId.value = urlParams.getAll('widget_id')
+  }
+
+  if (urlParams.has('geo')) {
+    if (urlParams.get('geo') === "all") {
+      geoId.value = []
+    } else {
+      geoId.value = urlParams.getAll('geo')
+    }
+  }
+
+  if (urlParams.has('platform')) {
+    if (urlParams.get('platform') === "all") {
+      platformId.value = []
+    } else {
+      platformId.value = urlParams.getAll('platform')
+    }
+  }
+
+  getStats()
 })
 
 // computed props
@@ -322,14 +375,10 @@ const siteIds = computed(() => {
 
 watch(dateRange, () => {
   getStats()
-  if (dateRange.value) {
-  }
 }, { deep: true })
 
 watch(siteId, () => {
   getStats()
-  if (siteId.value) {
-  }
   if (!siteId.value.length) {
     widgetId.value = []
   }
@@ -588,16 +637,16 @@ watch(checkBxs, () => {
                 {{ totalHeaders.eventDateTotalHeader }}
               </td>
               <td v-if="checkBxs.siteIdShown">
-                {{ totalHeaders.campaignTotalHeader }}
+                {{ totalHeaders.siteIdTotalHeader }}
               </td>
               <td v-if="checkBxs.widgetIdShown">
-                {{ totalHeaders.widgetTotalHeader }}
+                {{ totalHeaders.widgetIdTotalHeader }}
               </td>
               <td v-if="checkBxs.geoIdShown">
-                {{ totalHeaders.geoTotalHeader }}
+                {{ totalHeaders.geoIdTotalHeader }}
               </td>
               <td v-if="checkBxs.deviceIdShown">
-                {{ totalHeaders.platformTotalHeader }}
+                {{ totalHeaders.deviceIdTotalHeader }}
               </td>
               <td>{{ totalData.total_views }}</td>
               <td>{{ totalData.total_hits }}</td>

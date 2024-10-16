@@ -58,6 +58,7 @@ const login = async () => {
     useCookie('username').value = credentials.value.username
     commonStore.setUsername(credentials.value.username)
     await nextTick(() => {
+      commonStore.setLoginMsg("")
       router.replace(route.query.to ? String(route.query.to) : '/')
     })
   } catch (err) {
